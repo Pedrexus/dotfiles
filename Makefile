@@ -2,9 +2,8 @@
 
 .PHONY: stow
 
-stow:
+setup:
+	stow -t ~ tmux/
 	stow -t ~ zsh/
 	stow -t ~/.config nvim/
-
-status:
-	@$(SCRIPTS_DIR)/stow-status.sh
+	tmux source ~/.tmux.conf
