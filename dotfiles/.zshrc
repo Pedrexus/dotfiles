@@ -19,6 +19,7 @@ export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 # ------------------------------------------------------------------------------
 
 # Other shell options
+setopt autocd              # Change directory without `cd`
 setopt NO_BEEP             # Disable system beeps
 setopt NOBGNICE            # Don't lower priority of background jobs
 MAILCHECK=0                # Disable mail checking

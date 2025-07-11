@@ -27,4 +27,7 @@ cargo install eza
 # Install zoxide
 cargo install zoxide
 
+# Install lazygit
+go install github.com/jesseduffield/lazygit@latest
+
 echo "Installation complete!"
