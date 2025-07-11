@@ -1,0 +1,45 @@
+# Stow Ignore File
+# ----------------
+# This file contains patterns for files and directories that Stow should ignore.
+# Comments and blank lines are allowed.
+
+# Project-specific files/directories
+# ----------------------------------
+.DS_Store
+Makefile
+scripts/
+install.sh
+
+# Top-level documentation/license files
+# -------------------------------------
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Version Control Systems (VCS)
+# -----------------------------
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Subversion
+.svn
+
+# Mercurial
+.hg
+
+# CVS
+CVS
+.cvsignore
+\.#.+       # CVS conflict files / emacs lock files
+
+# Other VCS
+RCS
+.+,v
+_darcs
+
+# Editor backup/autosave files
+# ----------------------------
+.+~          # emacs backup files
+#.*#       # emacs autosave files

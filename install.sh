@@ -21,4 +21,10 @@ pipx install --upgrade pynvim
 # Install Yazi
 cargo install --locked yazi-fm yazi-cli
 
+# Install eza
+cargo install eza
+
+# Install zoxide
+cargo install zoxide
+
 echo "Installation complete!"

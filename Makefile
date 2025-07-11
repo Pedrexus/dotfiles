@@ -3,9 +3,7 @@
 .PHONY: stow install_stow
 
 setup:
-	stow -t ~ tmux/
-	stow -t ~ zsh/
-	stow -t ~/.config nvim/
+	stow -t ~ dotfiles 
 	tmux source ~/.tmux.conf
 
 install_stow:
