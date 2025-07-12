@@ -29,8 +29,9 @@ MAILCHECK=0                # Disable mail checking
 # REGION: Aliases
 # ------------------------------------------------------------------------------
 
-alias l='eza --no-permissions --total-size --hyperlink -hagM'
+alias l='eza --no-permissions --hyperlink -hagM'
 alias ll='l -l'
+alias llf='ll --total-size'
 alias lvim="NVIM_APPNAME=lazyvim nvim"
 alias vim="NVIM_APPNAME=mynvim nvim"
 
