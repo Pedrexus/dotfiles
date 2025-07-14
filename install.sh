@@ -28,6 +28,10 @@ cargo install eza
 cargo install zoxide
 
 # Install lazygit
-go install github.com/jesseduffield/lazygit@latest
+'''go install github.com/jesseduffield/lazygit@latest
+
+# Install tmux plugin manager
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 echo "Installation complete!"
+''
