@@ -31,8 +31,7 @@ MAILCHECK=0                # Disable mail checking
 
 alias l='eza --no-permissions --hyperlink -hagM'
 alias ll='l -l'
-alias ls='ll'
-alias llf='ll --total-size'
+alias lf='ll --total-size'
 alias lvim="NVIM_APPNAME=lazyvim nvim"
 alias vim="NVIM_APPNAME=mynvim nvim"
 
