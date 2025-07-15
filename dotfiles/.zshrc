@@ -152,3 +152,4 @@ source <(fzf --zsh)
 . "$HOME/.cargo/env"
 
 
+export PATH="/home/pedro/.pixi/bin:$PATH"
