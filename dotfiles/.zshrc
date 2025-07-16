@@ -1,18 +1,6 @@
 # ~/.zshrc: sourced in interactive shells.
 # Contains commands to set up aliases, functions, options, key bindings, etc.
 
-# ------------------------------------------------------------------------------
-# REGION: Environment Variables
-# ------------------------------------------------------------------------------
-
-export LANG='en_US.UTF-8'
-export LANGUAGE='en_US:en'
-export LC_ALL='en_US.UTF-8'
-export TERM='xterm-256color'
-export NVM_DIR="$HOME/.nvm"
-
-# Set PATH, adding ~/.local/bin and custom ~/bin
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # ------------------------------------------------------------------------------
 # REGION: Shell Options
@@ -24,16 +12,6 @@ setopt NO_BEEP             # Disable system beeps
 setopt NOBGNICE            # Don't lower priority of background jobs
 MAILCHECK=0                # Disable mail checking
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# ------------------------------------------------------------------------------
-# REGION: Aliases
-# ------------------------------------------------------------------------------
-
-alias l='eza --no-permissions --hyperlink -hagM'
-alias ll='l -l'
-alias lf='ll --total-size'
-alias lvim="NVIM_APPNAME=lazyvim nvim"
-alias vim="NVIM_APPNAME=mynvim nvim"
 
 # ------------------------------------------------------------------------------
 # REGION: Zinit Plugin Manager
@@ -75,6 +53,7 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-history-substring-search
 zinit light Aloxaf/fzf-tab
+zinit light jeffreytse/zsh-vi-mode
 
 zinit snippet OMZP::git
 zinit snippet OMZP::python
@@ -90,9 +69,9 @@ autoload -U compinit && compinit
 zinit cdreplay -q
 
 # Keybindings
-bindkey -e
-bindkey '^p' history-search-backward
-bindkey '^n' history-search-forward
+# bindkey -e
+# bindkey '^p' history-search-backward
+# bindkey '^n' history-search-forward
 
 # ------------------------------------------------------------------------------
 # REGION: History
@@ -144,12 +123,22 @@ source <(fzf --zsh)
 # REGION: Environment Setup
 # ------------------------------------------------------------------------------
 
-# Load nvm
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export EDITOR='lvim'
+export LANG='en_US.UTF-8'
+export LANGUAGE='en_US:en'
+export LC_ALL='en_US.UTF-8'
+export TERM='xterm-256color'
 
-# Load cargo
-. "$HOME/.cargo/env"
-
-
+# Set PATH, adding ~/.local/bin and custom ~/bin
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 export PATH="/home/pedro/.pixi/bin:$PATH"
+
+# ------------------------------------------------------------------------------
+# REGION: Aliases
+# ------------------------------------------------------------------------------
+
+alias l='eza --no-permissions --hyperlink -hagM'
+alias ll='l -l'
+alias lf='ll --total-size'
+alias lvim="NVIM_APPNAME=lazyvim nvim"
+alias vim="NVIM_APPNAME=mynvim nvim"
