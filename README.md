@@ -5,62 +5,65 @@ It sets up a consistent development environment across multiple machines.
 
 ## Encryption Setup
 
-On a new machine, you must import your private GPG key to decrypt secrets.
+If you are using encrypted files, you will need to perform the following steps on a new machine:
 
-**1. Export Your Private Key (from your primary machine):**
+1. **Export Your Private Key (from your primary machine):**
 
-Securely transfer your private key.
-Use a secure copy method (`scp`) to move this file to the new machine.
+    ```bash
+    mask export-gpg-private-key YOUR_EMAIL@example.em
+    ```
 
-```bash
-gpg --export-secret-keys --armor YOUR_EMAIL@example.com > private.key
-```
+    Securely transfer the `private.key` file to your new machine.
 
-**2. Import and Trust the Key (on the new machine):**
+2. **Import and Trust the Key (on the new machine):**
 
-Once the `private.key` file is on the new machine, run these commands:
+    ```bash
+    mask import-gpg-private-key
+    mask trust-gpg-key YOUR_EMAIL@example.com
+    ```
 
-```bash
-# Import the key
-gpg --import private.key
+3. **Verify and Clean Up:**
 
-# Trust the key
-gpg --edit-key YOUR_EMAIL@example.com
-```
+    ```bash
+    mask list-gpg-secret-keys
+    ```
 
-In the GPG prompt, type `trust`, select `5` for ultimate trust, and then `quit`.
-
-**3. Clean Up:**
-
-After verifying the key is imported (`gpg --list-secret-keys`),
-securely delete the `private.key` file.
+    After verifying, securely delete the `private.key` file.
 
 ## Installation
 
 To set up your dotfiles, use the `mask` command-line tool.
 All common tasks are defined in `maskfile.md`.
 
-1. **Install `chezmoi`:**
+1. **Install `pixi`:**
 
-    Follow the instructions on the [official chezmoi installation page](https://www.chezmoi.io/install/).
+   Follow their instruction in the website.
 
-2. **Initialize `chezmoi`:**
+2. **Install `chezmoi` and `zsh`:**
+
+    ```bash
+    mask install-core-tools
+    ```
+
+3. **Set `zsh` as default shell:**
+
+    ```bash
+    mask set-default-shell
+    ```
+
+4. **Initialize `chezmoi`:**
 
     ```bash
     mask init YOUR_USERNAME/YOUR_REPO.git
     ```
 
-3. **Apply the dotfiles:**
+5. **Apply the dotfiles:**
 
     ```bash
     mask apply
     ```
 
-4. **Install `pixi`:**
-
-   Follow their instruction in the website.
-
-5. **Install Global Dependencies:**
+6. **Install Global Dependencies:**
 
     ```bash
     mask install-global-dependencies
