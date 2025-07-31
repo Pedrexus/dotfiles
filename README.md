@@ -69,6 +69,21 @@ All common tasks are defined in `maskfile.md`.
     mask install-global-dependencies
     ```
 
+## First Usage
+
+After installation, you can start using your new shell and tools:
+
+1.  **Start Zsh:**
+    ```bash
+    zsh
+    ```
+
+2.  **Start Tmux:**
+    ```bash
+    tmux
+    ```
+    Inside tmux, press `Ctrl+A` then `I` to install tmux plugin dependencies.
+
 ### Technologies Installed
 
 * **[chezmoi](httpss://www.chezmoi.io/):** Manages the dotfiles.
@@ -76,3 +91,15 @@ All common tasks are defined in `maskfile.md`.
 * **[tmux](httpss://github.com/tmux/tmux/wiki):** A terminal multiplexer.
 * **[LazyVim](httpss://www.lazyvim.org/):** A Neovim setup.
 * **[pixi](httpss://pixi.sh/):** A package manager that does not need SUDO.
+
+## Troubleshooting
+
+### `mask install-global-dependencies` fails due to Python version
+
+If you encounter issues with `mask install-global-dependencies` on systems with older Python versions (e.g., Python 3.9), it might be due to `tomllib` not being available. You can resolve this by installing a compatible Python version globally via `pixi`:
+
+```bash
+pixi global install python
+```
+
+This will install a recent Python version that includes `tomllib`, allowing the dependency installation script to run correctly.
