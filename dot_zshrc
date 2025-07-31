@@ -142,3 +142,4 @@ alias ll='l -l'
 alias lf='ll --total-size'
 alias lvim="NVIM_APPNAME=lazyvim nvim"
 alias vim="NVIM_APPNAME=mynvim nvim"
+alias cat="bat"

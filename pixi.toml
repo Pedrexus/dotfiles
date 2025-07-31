@@ -6,8 +6,14 @@ platforms = ["linux-64", "osx-64"]
 version = "0.1.0"
 
 [tasks]
-expose = { cmd = "ln -sf $PIXI_PROJECT_ROOT/.pixi/envs/default/bin/* $HOME/.local/bin", description = "Expose all binaries to $HOME/.local/bin" }
-setup = { cmd = ["stow -t $HOME dotfiles", "tmux source $HOME/.tmux.conf"], description = "Stow dotfiles and source tmux config" }
+setup = { cmd = [
+  "stow -t $HOME dotfiles",
+  "tmux source $HOME/.tmux.conf",
+], description = "Stow dotfiles and source tmux config" }
+
+install-global = { cmd = '''python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install''' }
+
+uninstall-global = { cmd = '''python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global uninstall''' }
 
 
 [dependencies]
@@ -23,7 +29,6 @@ nodejs = ">=24.4.0,<24.5"
 nvitop = ">=1.5.1,<2"
 imagemagick = ">=7.1.2_0,<8"
 fd-find = ">=10.2.0,<11"
-stow = ">=2.3.1,<3"
 bat = ">=0.25.0,<0.26"
 ripgrep-all = ">=0.10.9,<0.11"
 mask = ">=0.11.6,<0.12"
@@ -36,3 +41,4 @@ xh = ">=0.24.1,<0.25"
 coreutils = ">=9.5,<10"
 python = ">=3.12,<3.14"
 mosh = ">=1.4.0,<2"
+chezmoi = ">=2.63.1,<3"

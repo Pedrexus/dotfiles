@@ -1,0 +1,4 @@
+encryption = "gpg"
+
+[gpg]
+symmetric = true
