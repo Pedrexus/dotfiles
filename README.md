@@ -32,9 +32,13 @@ In the GPG prompt, type `trust`, select `5` for ultimate trust, and then `quit`.
 
 **3. Clean Up:**
 
-After verifying the key is imported (`gpg --list-secret-keys`), securely delete the `private.key` file.
+After verifying the key is imported (`gpg --list-secret-keys`),
+securely delete the `private.key` file.
 
 ## Installation
+
+To set up your dotfiles, use the `mask` command-line tool.
+All common tasks are defined in `maskfile.md`.
 
 1. **Install `chezmoi`:**
 
@@ -42,32 +46,24 @@ After verifying the key is imported (`gpg --list-secret-keys`), securely delete 
 
 2. **Initialize `chezmoi`:**
 
-    Replace `YOUR_USERNAME/YOUR_REPO` with your actual repository path:
-
     ```bash
-    chezmoi init https://github.com/YOUR_USERNAME/YOUR_REPO.git
+    mask init YOUR_USERNAME/YOUR_REPO.git
     ```
 
 3. **Apply the dotfiles:**
 
     ```bash
-    chezmoi apply
+    mask apply
     ```
 
 4. **Install `pixi`:**
 
-    Install pixi to manage packages:
-
-    ```bash
-    curl -fsSL https://pixi.sh/install.sh | bash
-    ```
+   Follow their instruction in the website.
 
 5. **Install Global Dependencies:**
 
-    Run the following command to install all the necessary tools:
-
     ```bash
-    pixi run install-global
+    mask install-global-dependencies
     ```
 
 ### Technologies Installed
@@ -77,7 +73,3 @@ After verifying the key is imported (`gpg --list-secret-keys`), securely delete 
 * **[tmux](httpss://github.com/tmux/tmux/wiki):** A terminal multiplexer.
 * **[LazyVim](httpss://www.lazyvim.org/):** A Neovim setup.
 * **[pixi](httpss://pixi.sh/):** A package manager that does not need SUDO.
-
-### TODO
-
-* Add secrets with chezmoi.

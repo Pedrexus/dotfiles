@@ -5,15 +5,7 @@ name = "dotfiles"
 platforms = ["linux-64", "osx-64"]
 version = "0.1.0"
 
-[tasks]
-setup = { cmd = [
-  "stow -t $HOME dotfiles",
-  "tmux source $HOME/.tmux.conf",
-], description = "Stow dotfiles and source tmux config" }
 
-install-global = { cmd = '''python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install''' }
-
-uninstall-global = { cmd = '''python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global uninstall''' }
 
 
 [dependencies]
