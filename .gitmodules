@@ -1,3 +1,0 @@
-[submodule "dot_config/lazyvim"]
-	path = dot_config/lazyvim
-	url = https://github.com/LazyVim/starter
