@@ -126,7 +126,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mask-0.11.6-hb23c6cf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/matplotlib-inline-0.1.7-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mosh-1.4.0-pl5321h75dbecd_13.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/mprocs-0.6.4-h5014ea6_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-c-6.1.0-h7955e40_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/nodejs-24.4.0-heeeca48_0.conda
@@ -285,7 +284,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/mask-0.11.6-h20e96b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/matplotlib-inline-0.1.7-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/mosh-1.4.0-pl5321h8f2bd5d_13.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/mprocs-0.6.4-h371c88c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/msgpack-c-6.1.0-h04d1b7c_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/ncurses-6.5-h0622a9a_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/nodejs-24.4.0-h2e7699b_0.conda
@@ -2619,30 +2617,6 @@ packages:
   license_family: GPL3
   size: 199603
   timestamp: 1751877666919
-- conda: https://conda.anaconda.org/conda-forge/linux-64/mprocs-0.6.4-h5014ea6_0.conda
-  sha256: 1ac6f64a7f49a406e648f5ee3abafe2bce4c9c677a8ef3f93b8869eaa45c08fd
-  md5: 639f9747d4c19571e85b98a5bc5dae9d
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libxcb >=1.17.0,<2.0a0
-  constrains:
-  - __glibc >=2.17
-  license: MIT
-  license_family: MIT
-  size: 978312
-  timestamp: 1731327263969
-- conda: https://conda.anaconda.org/conda-forge/osx-64/mprocs-0.6.4-h371c88c_0.conda
-  sha256: 396cd5b87ea39b630abd5ae3e66e7a0fbb552f683a4726b44bbd14fe04bc61a4
-  md5: 40ea98d3cae859426f609ea7d59f25a1
-  depends:
-  - __osx >=10.13
-  constrains:
-  - __osx >=10.13
-  license: MIT
-  license_family: MIT
-  size: 896625
-  timestamp: 1731327495330
 - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-c-6.1.0-h7955e40_2.conda
   sha256: 1acaca62330fd978ccf2aa0900e16e3e549e68637bd1f6f502d5398810dbd057
   md5: bccbd930aa09a61a6047b6e39c8cf887
