@@ -1,2 +1,6 @@
 LICENSE
+*.md
+*.json
+*.toml
+*.lock
 pixi*
