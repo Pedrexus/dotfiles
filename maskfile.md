@@ -37,7 +37,7 @@ chsh -s $(which zsh)
 > Installs global dependencies using pixi.
 
 ~~~bash
-python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install
+python3 -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install
 ~~~
 
 ## uninstall-global-dependencies
@@ -45,7 +45,7 @@ python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/ch
 > Uninstalls global dependencies using pixi.
 
 ~~~bash
-python -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global uninstall
+python3 -c "import tomllib; data = tomllib.load(open('/home/pedro/.local/share/chezmoi/pixi.local/share/chezmoi/pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global uninstall
 ~~~
 
 ## export (email)
