@@ -1,4 +1,5 @@
-encryption = "gpg"
+encryption = "age"
 
-[gpg]
-symmetric = true
+[age]
+    identity = "~/.config/chezmoi/key.age"
+    recipient = "age1ch957cgzj2ajfghqwagcxfsgfmcmjalklls42ze50zdrdk24cgrsefst7f"
