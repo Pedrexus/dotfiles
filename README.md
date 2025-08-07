@@ -32,13 +32,13 @@ All common tasks are defined in `maskfile.md`.
 3. **Set `zsh` as default shell:**
 
     ```bash
-    mask set-default-shell
+    mask shell
     ```
 
 4. **Install Global Dependencies:**
 
     ```bash
-    mask install-global-dependencies
+    mask install
     ```
 
 ## First Usage
@@ -66,9 +66,9 @@ After installation, you can start using your new shell and tools:
 
 ## Troubleshooting
 
-### `mask install-global-dependencies` fails due to Python version
+### `mask install` fails due to Python version
 
-If you encounter issues with `mask install-global-dependencies` on systems with older Python versions (e.g., Python 3.9), it might be due to `tomllib` not being available. You can resolve this by installing a compatible Python version globally via `pixi`:
+If you encounter issues with `mask install` on systems with older Python versions (e.g., Python 3.9), it might be due to `tomllib` not being available. You can resolve this by installing a compatible Python version globally via `pixi`:
 
 ```bash
 pixi global install python
