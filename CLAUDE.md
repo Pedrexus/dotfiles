@@ -67,3 +67,7 @@ Key tools installed via pixi.toml:
 - LazyVim configuration is in `dot_config/lazyvim/` with custom plugins in `lua/plugins/`
 - Sensitive files are encrypted with age - ensure the encryption key is properly configured before applying dotfiles
 - The zsh configuration uses Zinit for plugin management and includes extensive customization
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md
