@@ -14,7 +14,6 @@ chsh -s $(which zsh)
 
 ~~~bash
 python3 -c "import tomllib; data = tomllib.load(open('pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install
-mask npm
 ~~~
 
 ## npm

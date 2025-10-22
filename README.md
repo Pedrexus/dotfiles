@@ -17,6 +17,7 @@ All common tasks are defined in `maskfile.md`.
     ```bash
     pixi global install chezmoi zsh tmux age mask
     ```
+
 3. Move age.key to new machine
 
     ```bash
@@ -45,15 +46,18 @@ All common tasks are defined in `maskfile.md`.
 
 After installation, you can start using your new shell and tools:
 
-1.  **Start Zsh:**
+1. **Start Zsh:**
+
     ```bash
     zsh
     ```
 
-2.  **Start Tmux:**
+2. **Start Tmux:**
+
     ```bash
     tmux
     ```
+
     Inside tmux, press `Ctrl+A` then `I` to install tmux plugin dependencies.
 
 ### Technologies Installed
