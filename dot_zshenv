@@ -1,1 +1,24 @@
-export PATH="$HOME/.pixi/bin:$PATH"
+# ~/.zshenv: sourced on all invocations of the shell (login and non-login, interactive and non-interactive)
+# Contains environment variables and PATH setup
+
+# ------------------------------------------------------------------------------
+# REGION: Environment Variables
+# ------------------------------------------------------------------------------
+
+export EDITOR='lvim'
+export LANG='en_US.UTF-8'
+export LANGUAGE='en_US:en'
+export LC_ALL='en_US.UTF-8'
+export TERM='xterm-256color'
+
+# ------------------------------------------------------------------------------
+# REGION: PATH Setup
+# ------------------------------------------------------------------------------
+
+# User local binaries
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+# Architecture-specific pixi installation (handles ARM and x86_64 login nodes)
+export PIXI_HOME="$HOME/.pixi/$(uname -m)"
+export PATH="$PIXI_HOME/bin:$PATH"
+export PATH="$PIXI_HOME/envs/nodejs/bin:$PATH"

@@ -2,21 +2,6 @@
 # Contains commands to set up aliases, functions, options, key bindings, etc.
 
 # ------------------------------------------------------------------------------
-# REGION: Environment Setup
-# ------------------------------------------------------------------------------
-
-export EDITOR='lvim'
-export LANG='en_US.UTF-8'
-export LANGUAGE='en_US:en'
-export LC_ALL='en_US.UTF-8'
-export TERM='xterm-256color'
-
-# Set PATH, adding ~/.local/bin and custom ~/bin
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-export PATH="$HOME/.pixi/bin:$PATH"
-export PATH="$HOME/.pixi/envs/nodejs/bin:$PATH"
-
-# ------------------------------------------------------------------------------
 # REGION: Shell Options
 # ------------------------------------------------------------------------------
 
@@ -66,12 +51,6 @@ zinit light-mode for \
 # REGION: Zinit Plugins
 # ------------------------------------------------------------------------------
 
-# Starship prompt
-zinit ice as"command" from"gh-r" \
-          atclone"./starship init zsh > init.zsh; ./starship completions zsh > _starship" \
-          atpull"%atclone" src"init.zsh"
-zinit light starship/starship
-
 # Zsh plugins
 zinit snippet OMZP::git
 zinit snippet OMZP::python
@@ -82,7 +61,6 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
-zinit light jeffreytse/zsh-vi-mode
 
 # ------------------------------------------------------------------------------
 # REGION: Completions and Keybindings
@@ -94,6 +72,13 @@ zinit cdreplay -q
 # bindkey -e
 # bindkey '^p' history-search-backward
 # bindkey '^n' history-search-forward
+
+# ------------------------------------------------------------------------------
+# REGION: Starship Prompt
+# ------------------------------------------------------------------------------
+
+# Initialize starship (installed via pixi for cross-platform support)
+eval "$(starship init zsh)"
 
 # ------------------------------------------------------------------------------
 # REGION: History
@@ -136,9 +121,6 @@ zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
-
-eval "$(zoxide init --cmd cd zsh)"
 
 # ------------------------------------------------------------------------------
 # REGION: Aliases

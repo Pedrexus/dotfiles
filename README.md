@@ -15,8 +15,10 @@ All common tasks are defined in `maskfile.md`.
 2. **Install `chezmoi` and `zsh`:**
 
     ```bash
-    pixi global install chezmoi zsh tmux age mask
+    pixi global install chezmoi age mask
     ```
+
+    - You may also need `zsh`, `tmux` or `python>=3.13` if you don't have them already.
 
 3. Move age.key to new machine
 
