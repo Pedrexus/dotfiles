@@ -12,13 +12,15 @@ All common tasks are defined in `maskfile.md`.
 
    Follow their instruction in [their website](https://pixi.sh/latest/installation/).
 
-2. **Install `chezmoi` and `zsh`:**
+2. **Install `chezmoi`, `age`, and `mask`:**
 
     ```bash
     pixi global install chezmoi age mask
     ```
 
-    - You may also need `zsh`, `tmux` or `python>=3.13` if you don't have them already.
+    - Install `zsh` with your system package manager before running `mask shell`.
+    - On Debian, Ubuntu, or Raspberry Pi OS: `sudo apt install -y zsh`
+    - You may also need `tmux` or `python>=3.13` if you don't have them already.
 
 3. Move age.key to new machine
 
@@ -37,6 +39,8 @@ All common tasks are defined in `maskfile.md`.
     ```bash
     mask shell
     ```
+
+    This selects the registered system `zsh` from `/etc/shells`.
 
 4. **Install Global Dependencies:**
 
