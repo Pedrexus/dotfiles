@@ -12,10 +12,26 @@ export TERM='xterm-256color'
 # REGION: PATH Setup
 # ------------------------------------------------------------------------------
 
-# User local binaries
-export PATH="$HOME/.local/bin:$HOME/.docker/bin:$HOME/bin:$PATH"
-
-# Architecture-specific pixi installation (handles ARM and x86_64 login nodes)
+# Keep user binaries first, preserve system paths, and move Pixi bins after
+# the system directories so login shells never resolve to a Pixi shell binary.
 export PIXI_HOME="$HOME/.pixi/$(uname -m)"
-export PATH="$PIXI_HOME/bin:$PATH"
-export PATH="$PIXI_HOME/envs/nodejs/bin:$PATH"
+
+typeset -U path PATH
+typeset -a base_path
+
+base_path=(${path:#$HOME/.pixi/bin})
+base_path=(${base_path:#$PIXI_HOME/bin})
+base_path=(${base_path:#$PIXI_HOME/envs/nodejs/bin})
+
+path=(
+	$HOME/.local/bin
+	$HOME/.docker/bin
+	$HOME/bin
+	$base_path
+	$HOME/.pixi/bin
+	$PIXI_HOME/bin
+	$PIXI_HOME/envs/nodejs/bin
+)
+
+export PATH
+unset base_path
