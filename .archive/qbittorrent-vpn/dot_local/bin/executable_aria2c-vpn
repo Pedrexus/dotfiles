@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+exec aria2c \
+    --interface=airvpn0 \
+    --seed-time=0 \
+    --max-connection-per-server=16 \
+    --split=16 \
+    --file-allocation=none \
+    --bt-max-peers=0 \
+    "$@"

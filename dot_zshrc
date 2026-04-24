@@ -11,7 +11,9 @@ setopt NO_BEEP             # Disable system beeps
 setopt NOBGNICE            # Don't lower priority of background jobs
 MAILCHECK=0                # Disable mail checking
 
-source <(fzf --zsh)
+if command -v fzf >/dev/null 2>&1; then
+    source <(fzf --zsh)
+fi
 
 # ------------------------------------------------------------------------------
 # REGION: Zsh Modules and Completion
@@ -28,7 +30,9 @@ autoload -U compinit && compinit
 # ------------------------------------------------------------------------------
 
 # Install Zinit if it's not already installed
-if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+zinit_home="$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+
+if [[ ! -f $zinit_home ]]; then
     print -P "%F{33}%F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
     command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
     command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
@@ -36,37 +40,39 @@ if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
         print -P "%F{160}The clone has failed.%f%b"
 fi
 
-source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
+if [[ -f $zinit_home ]]; then
+    source "$zinit_home"
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
 
-# Load Zinit annexes
-zinit light-mode for \
-    zdharma-continuum/zinit-annex-as-monitor \
-    zdharma-continuum/zinit-annex-bin-gem-node \
-    zdharma-continuum/zinit-annex-patch-dl \
-    zdharma-continuum/zinit-annex-rust
+    # Load Zinit annexes
+    zinit light-mode for \
+        zdharma-continuum/zinit-annex-as-monitor \
+        zdharma-continuum/zinit-annex-bin-gem-node \
+        zdharma-continuum/zinit-annex-patch-dl \
+        zdharma-continuum/zinit-annex-rust
 
-# ------------------------------------------------------------------------------
-# REGION: Zinit Plugins
-# ------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------
+    # REGION: Zinit Plugins
+    # ------------------------------------------------------------------------------
 
-# Zsh plugins
-zinit snippet OMZP::git
-zinit snippet OMZP::python
-zinit snippet OMZP::sudo
-zinit snippet OMZP::command-not-found
+    # Zsh plugins
+    zinit snippet OMZP::git
+    zinit snippet OMZP::python
+    zinit snippet OMZP::sudo
+    zinit snippet OMZP::command-not-found
 
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
-zinit light Aloxaf/fzf-tab
+    zinit light zsh-users/zsh-syntax-highlighting
+    zinit light zsh-users/zsh-completions
+    zinit light zsh-users/zsh-autosuggestions
+    zinit light Aloxaf/fzf-tab
 
-# ------------------------------------------------------------------------------
-# REGION: Completions and Keybindings
-# ------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------
+    # REGION: Completions and Keybindings
+    # ------------------------------------------------------------------------------
 
-zinit cdreplay -q
+    zinit cdreplay -q
+fi
 
 # Keybindings
 # bindkey -e
@@ -78,7 +84,9 @@ zinit cdreplay -q
 # ------------------------------------------------------------------------------
 
 # Initialize starship (installed via pixi for cross-platform support)
-eval "$(starship init zsh)"
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
 
 # ------------------------------------------------------------------------------
 # REGION: History

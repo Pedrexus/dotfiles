@@ -1,0 +1,53 @@
+#!/bin/sh
+set -eu
+
+profile="${QBT_VPN_PROFILE:-$HOME/.local/share/qbittorrent-vpn}"
+webui_port="${QBT_WEBUI_PORT:-${VPN_WEBUI_PORT:-8080}}"
+torrent_port="${QBT_TORRENT_PORT:-42424}"
+conf="$profile/qBittorrent/config/qBittorrent.conf"
+
+if ! ip link show airvpn-ns >/dev/null 2>&1; then
+  exec vpn exec qbittorrent-vpn "$@"
+fi
+
+command -v qbittorrent-nox >/dev/null 2>&1 || {
+  printf '%s\n' 'qbittorrent-nox is required but not installed' >&2
+  exit 1
+}
+
+if [ "$#" -eq 1 ]; then
+  case "$1" in
+    -h|--help|-v|--version)
+      exec qbittorrent-nox "$1"
+      ;;
+  esac
+fi
+
+for arg in "$@"; do
+  case "$arg" in
+    --profile=*|--webui-port=*|--torrenting-port=*)
+      printf '%s\n' "use 'vpn exec qbittorrent-nox ...' for custom profile or port overrides" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ ! -f "$conf" ]; then
+  mkdir -p "$(dirname "$conf")"
+  cat > "$conf" <<EOF
+[LegalNotice]
+Accepted=true
+EOF
+elif ! grep -q '^Accepted=true$' "$conf"; then
+  cat >> "$conf" <<EOF
+
+[LegalNotice]
+Accepted=true
+EOF
+fi
+
+exec qbittorrent-nox \
+  --profile="$profile" \
+  --webui-port="$webui_port" \
+  --torrenting-port="$torrent_port" \
+  "$@"

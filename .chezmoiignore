@@ -3,3 +3,5 @@ LICENSE
 *.toml
 *.lock
 pixi*
+.archive
+.archive/**

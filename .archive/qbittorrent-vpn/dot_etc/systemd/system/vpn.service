@@ -1,0 +1,16 @@
+[Unit]
+Description=VPN namespace service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/local/bin/vpn __cleanup
+ExecStart=/usr/local/bin/vpn __run
+ExecStopPost=/usr/local/bin/vpn __cleanup
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

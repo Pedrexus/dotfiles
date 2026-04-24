@@ -21,7 +21,22 @@ sudo chsh -s "$shell_path" "$USER"
 > Installs global dependencies using pixi and npm packages.
 
 ~~~bash
-python3 -c "import tomllib; data = tomllib.load(open('pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global install
+python3 - <<'EOF' | xargs pixi global install
+import tomllib, platform
+with open('pixi.toml', 'rb') as f:
+    data = tomllib.load(f)
+s, m = platform.system().lower(), platform.machine().lower()
+if s == 'darwin':
+    plat = 'osx-arm64' if m in ('arm64', 'aarch64') else 'osx-64'
+elif s == 'linux':
+    plat = 'linux-aarch64' if m == 'aarch64' else 'linux-64'
+else:
+    plat = ''
+pkgs = set(data.get('dependencies', {}).keys())
+if plat:
+    pkgs |= set(data.get('target', {}).get(plat, {}).get('dependencies', {}).keys())
+print(' '.join(pkgs))
+EOF
 ~~~
 
 ## npm
@@ -37,5 +52,20 @@ npm install -g @anthropic/claude-code
 > Uninstalls global dependencies using pixi.
 
 ~~~bash
-python3 -c "import tomllib; data = tomllib.load(open('pixi.toml', 'rb')); print(' '.join(data['dependencies'].keys()))" | xargs pixi global uninstall
+python3 - <<'EOF' | xargs pixi global uninstall
+import tomllib, platform
+with open('pixi.toml', 'rb') as f:
+    data = tomllib.load(f)
+s, m = platform.system().lower(), platform.machine().lower()
+if s == 'darwin':
+    plat = 'osx-arm64' if m in ('arm64', 'aarch64') else 'osx-64'
+elif s == 'linux':
+    plat = 'linux-aarch64' if m == 'aarch64' else 'linux-64'
+else:
+    plat = ''
+pkgs = set(data.get('dependencies', {}).keys())
+if plat:
+    pkgs |= set(data.get('target', {}).get(plat, {}).get('dependencies', {}).keys())
+print(' '.join(pkgs))
+EOF
 ~~~

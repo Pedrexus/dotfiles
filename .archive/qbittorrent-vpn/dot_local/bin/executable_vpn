@@ -1,0 +1,292 @@
+#!/bin/sh
+set -eu
+
+ns='airvpn'
+service='vpn.service'
+tun='airvpn0'
+host_veth='airvpn-br'
+ns_veth='airvpn-ns'
+host_addr='10.203.0.1'
+host_cidr="$host_addr/30"
+ns_addr='10.203.0.2'
+ns_cidr="$ns_addr/30"
+run_dir='/run/airvpn'
+ip_forward_state="$run_dir/ip_forward.prev"
+netns_dir="/etc/netns/$ns"
+resolv_conf="$netns_dir/resolv.conf"
+owner=''
+owner_home=''
+
+die() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+need() {
+  command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+require_root() {
+  [ "$(id -u)" -eq 0 ] || die "root privileges required for $1"
+}
+
+home_for_user() {
+  getent passwd "$1" | awk -F: 'NR==1 { print $6 }'
+}
+
+user_for_home() {
+  getent passwd | awk -F: -v target="$1" '$6 == target { print $1; exit }'
+}
+
+discover_owner_home() {
+  found_home=''
+  candidate_homes=$(getent passwd | awk -F: '$3 >= 1000 && $6 != "" { print $6 }')
+
+  for candidate_home in $candidate_homes /root; do
+    set -- "$candidate_home"/.vpn/*.ovpn
+    [ -e "$1" ] || continue
+    if [ -n "$found_home" ] && [ "$found_home" != "$candidate_home" ]; then
+      die 'found multiple .ovpn homes; set VPN_HOME or VPN_USER explicitly'
+    fi
+    found_home="$candidate_home"
+  done
+
+  [ -n "$found_home" ] || die 'could not determine VPN home automatically'
+  printf '%s\n' "$found_home"
+}
+
+resolve_owner() {
+  [ -n "$owner" ] && [ -n "$owner_home" ] && return 0
+
+  explicit_home="${VPN_HOME:-${AIRVPN_HOME:-}}"
+  explicit_owner="${VPN_USER:-${AIRVPN_USER:-}}"
+
+  if [ -n "$explicit_home" ]; then
+    owner_home="$explicit_home"
+    owner="${explicit_owner:-$(user_for_home "$owner_home")}"
+  elif [ -n "$explicit_owner" ]; then
+    owner="$explicit_owner"
+    owner_home=$(home_for_user "$owner")
+  elif [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != 'root' ]; then
+    owner="$SUDO_USER"
+    owner_home=$(home_for_user "$owner")
+  elif [ -n "${USER:-}" ] && [ "$USER" != 'root' ] && [ -n "${HOME:-}" ] && [ "$HOME" != '/root' ]; then
+    owner="$USER"
+    owner_home="$HOME"
+  else
+    owner_home=$(discover_owner_home)
+    owner=$(user_for_home "$owner_home")
+  fi
+
+  [ -n "$owner_home" ] || die 'could not determine VPN home directory'
+  [ -d "$owner_home" ] || die "VPN home does not exist: $owner_home"
+  [ -n "$owner" ] || die "could not determine VPN owner for $owner_home"
+}
+
+profile() {
+  resolve_owner
+  set -- "$owner_home"/.vpn/*.ovpn
+  [ -e "$1" ] || die "no .ovpn file found in $owner_home/.vpn"
+  [ "$#" -eq 1 ] || die "expected exactly one .ovpn file in $owner_home/.vpn"
+  ovpn=$1
+  remote_host=$(awk '/^remote /{ print $2; exit }' "$ovpn")
+  remote_port=$(awk '/^remote /{ print $3; exit }' "$ovpn")
+  proto=$(awk '/^proto /{ print $2; exit }' "$ovpn")
+  [ -n "$remote_host" ] || die "could not parse remote host from $ovpn"
+  [ -n "$remote_port" ] || remote_port='1194'
+  [ -n "$proto" ] || proto='udp'
+}
+
+resolve_remote() {
+  remote_ip=$(getent ahostsv4 "$remote_host" | awk 'NR==1 { print $1 }')
+  [ -n "$remote_ip" ] || die "could not resolve IPv4 address for $remote_host"
+  uplink_if=$(ip route get "$remote_ip" | awk '{ for (i = 1; i <= NF; i++) if ($i == "dev") { print $(i + 1); exit } }')
+  [ -n "$uplink_if" ] || die "could not determine uplink interface for $remote_ip"
+}
+
+proto_rule() {
+  case "$proto" in
+    udp|udp4|udp6)
+      printf 'udp dport %s' "$remote_port"
+      ;;
+    tcp|tcp4|tcp6|tcp-client)
+      printf 'tcp dport %s' "$remote_port"
+      ;;
+    *)
+      die "unsupported OpenVPN transport protocol: $proto"
+      ;;
+  esac
+}
+
+nft_delete() {
+  nft delete table "$1" "$2" >/dev/null 2>&1 || true
+}
+
+render_config() {
+  mkdir -p "$run_dir"
+  awk '!/^(remote |dev |dev-type |topology )/ { print }' "$ovpn" > "$run_dir/openvpn.conf"
+  cat >> "$run_dir/openvpn.conf" <<EOF
+topology subnet
+dev-type tun
+dev $tun
+remote $remote_ip $remote_port
+proto $proto
+EOF
+}
+
+save_ip_forward() {
+  cat /proc/sys/net/ipv4/ip_forward > "$ip_forward_state"
+  printf '1\n' > /proc/sys/net/ipv4/ip_forward
+}
+
+restore_ip_forward() {
+  [ -f "$ip_forward_state" ] || return 0
+  previous=$(tr -d '\n' < "$ip_forward_state")
+  case "$previous" in
+    0|1)
+      printf '%s\n' "$previous" > /proc/sys/net/ipv4/ip_forward
+      ;;
+  esac
+}
+
+setup_namespace() {
+  ip netns add "$ns"
+  ip link add "$host_veth" type veth peer name "$ns_veth"
+  ip addr add "$host_cidr" dev "$host_veth"
+  ip link set "$host_veth" up
+  ip link set "$ns_veth" netns "$ns"
+  ip netns exec "$ns" ip link set lo up
+  ip netns exec "$ns" ip addr add "$ns_cidr" dev "$ns_veth"
+  ip netns exec "$ns" ip link set "$ns_veth" up
+  ip netns exec "$ns" ip route replace default via "$host_addr" dev "$ns_veth"
+  mkdir -p "$netns_dir"
+  cat > "$resolv_conf" <<EOF
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+EOF
+  save_ip_forward
+}
+
+setup_host_nft() {
+  nft_delete ip airvpn_nat
+  nft_delete inet airvpn_host
+  cat <<EOF | nft -f -
+table ip airvpn_nat {
+  chain postrouting {
+    type nat hook postrouting priority srcnat; policy accept;
+    ip saddr $ns_addr oifname "$uplink_if" masquerade
+  }
+}
+table inet airvpn_host {
+  chain forward {
+    type filter hook forward priority filter; policy accept;
+    iifname "$host_veth" oifname "$uplink_if" accept
+    iifname "$uplink_if" oifname "$host_veth" ct state established,related accept
+  }
+}
+EOF
+}
+
+setup_namespace_nft() {
+  rule=$(proto_rule)
+  ip netns exec "$ns" nft delete table inet airvpn >/dev/null 2>&1 || true
+  cat <<EOF | ip netns exec "$ns" nft -f -
+table inet airvpn {
+  chain output {
+    type filter hook output priority filter; policy drop;
+    oifname "lo" accept
+    oifname "$tun" accept
+    oifname "$ns_veth" ct state established,related accept
+    oifname "$ns_veth" ip daddr $remote_ip $rule accept
+  }
+}
+EOF
+}
+
+cleanup() {
+  require_root cleanup
+  nft_delete ip airvpn_nat
+  nft_delete inet airvpn_host
+  restore_ip_forward
+  rm -rf "$run_dir" "$netns_dir"
+  if ip netns list | grep -Eq "^$ns( |$)"; then
+    for pid in $(ip netns pids "$ns" 2>/dev/null || true); do
+      kill "$pid" >/dev/null 2>&1 || true
+    done
+    ip netns delete "$ns" >/dev/null 2>&1 || true
+  fi
+  ip link delete "$host_veth" >/dev/null 2>&1 || true
+}
+
+run_service() {
+  require_root __run
+  need ip
+  need nft
+  need openvpn
+  need getent
+  need awk
+  need grep
+  profile
+  resolve_remote
+  render_config
+  setup_namespace
+  setup_host_nft
+  setup_namespace_nft
+  exec ip netns exec "$ns" openvpn --config "$run_dir/openvpn.conf" --status "$run_dir/openvpn.status" 10
+}
+
+run_in_namespace() {
+  resolve_owner
+
+  if [ "$(id -u)" -eq 0 ]; then
+    ip netns exec "$ns" runuser -u "$owner" -- env HOME="$owner_home" USER="$owner" LOGNAME="$owner" PATH="$PATH" "$@"
+    return $?
+  fi
+
+  sudo ip netns exec "$ns" runuser -u "$owner" -- env HOME="$owner_home" USER="$owner" LOGNAME="$owner" PATH="$PATH" "$@"
+}
+
+service_active() {
+  systemctl is-active --quiet "$service"
+}
+
+show_check() {
+  profile
+  remote_ip=$(getent ahostsv4 "$remote_host" | awk 'NR==1 { print $1 }' 2>/dev/null || true)
+  active=$(systemctl is-active "$service" 2>/dev/null || true)
+  enabled=$(systemctl is-enabled "$service" 2>/dev/null || true)
+  namespace='absent'
+  if ip netns list | grep -Eq "^$ns( |$)"; then
+    namespace='present'
+  fi
+
+  printf 'service: %s\nstatus: %s\nautostart: %s\nnamespace: %s\nendpoint: %s (%s:%s/%s)\n' \
+    "$service" "${active:-unknown}" "${enabled:-unknown}" "$namespace" "$remote_host" "${remote_ip:-unresolved}" "$remote_port" "$proto"
+}
+
+case "${1:-}" in
+  enable)
+    exec sudo systemctl enable --now "$service"
+    ;;
+  disable)
+    exec sudo systemctl disable --now "$service"
+    ;;
+  check)
+    show_check
+    ;;
+  exec)
+    shift
+    [ "$#" -gt 0 ] || die "usage: vpn exec <command>..."
+    service_active || die 'vpn service is not active'
+    run_in_namespace "$@"
+    ;;
+  __run)
+    run_service
+    ;;
+  __cleanup)
+    cleanup
+    ;;
+  *)
+    die 'usage: vpn enable|disable|check|exec <command>...'
+    ;;
+esac

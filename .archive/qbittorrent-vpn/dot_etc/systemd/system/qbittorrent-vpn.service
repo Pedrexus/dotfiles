@@ -1,0 +1,15 @@
+[Unit]
+Description=qBittorrent inside the VPN namespace
+After=vpn.service
+Requires=vpn.service
+BindsTo=vpn.service
+PartOf=vpn.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/vpn exec /usr/local/bin/qbittorrent-vpn
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=vpn.service
