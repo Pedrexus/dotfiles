@@ -140,3 +140,20 @@ alias lf='ll --total-size'
 alias lvim="NVIM_APPNAME=lazyvim nvim"
 alias vim="NVIM_APPNAME=mynvim nvim"
 alias cat="bat"
+
+# ------------------------------------------------------------------------------
+# REGION: PATH
+# ------------------------------------------------------------------------------
+
+# Cargo-installed binaries (e.g. tdf, bookokrat terminal PDF viewers)
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# ------------------------------------------------------------------------------
+# REGION: mise (polyglot runtimes + CLI tools)
+# ------------------------------------------------------------------------------
+
+# Activate last so mise shims prepend ahead of pixi/cargo for managed tools.
+# pixi stays the source of truth for Python/conda + heavy C libraries.
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
