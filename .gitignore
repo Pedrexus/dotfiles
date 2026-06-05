@@ -34,3 +34,5 @@ node_modules/
 # tasks/ 
 
 __pycache__/
+# chefe compiled env
+.chefe/
