@@ -1,52 +1,51 @@
 # Dotfiles
 
-This project contains my personal dotfiles, managed by [chezmoi](httpss://www.chezmoi.io/).
+This project contains my personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/).
 It sets up a consistent development environment across multiple machines.
 
 ## Installation
 
-To set up your dotfiles, use the `mask` command-line tool.
-All common tasks are defined in `maskfile.md`.
+All tooling lives in `chefe.toml` and is installed with [chefe](https://phvv.me/chefe).
 
-1. **Install `pixi`:**
-
-   Follow their instruction in [their website](https://pixi.sh/latest/installation/).
-
-2. **Install `chezmoi`, `age`, and `mask`:**
+1. **Install `chefe`:**
 
     ```bash
-    pixi global install chezmoi age mask
+    pip install chefe      # or: pipx install chefe
     ```
 
-    - Install `zsh` with your system package manager before running `mask shell`.
-    - On Debian, Ubuntu, or Raspberry Pi OS: `sudo apt install -y zsh`
-    - You may also need `tmux` or `python>=3.13` if you don't have them already.
+    chefe installs [pixi](https://pixi.sh), the engine it compiles to, on first run.
 
-3. Move age.key to new machine
+    Install `zsh` with your system package manager before running `chefe run shell`.
+    On Debian, Ubuntu, or Raspberry Pi OS that is `sudo apt install -y zsh`.
+
+2. **Move the age key to the new machine:**
 
     ```bash
     rsync -aP ~/key.age machine:~/.config/chezmoi/
     ```
 
-5. **Initialize `chezmoi`:**
+3. **Install the toolbox:**
+
+    ```bash
+    chefe global
+    ```
+
+    This installs every CLI declared in `chefe.toml` (chezmoi, age, tmux, nvim, and friends)
+    into the shared global env, plus the npm tooling from `[nodejs.deps]`.
+
+4. **Initialize `chezmoi`:**
 
     ```bash
     chezmoi init Pedrexus/dotfiles.git
     ```
 
-3. **Set `zsh` as default shell:**
+5. **Set `zsh` as the default login shell:**
 
     ```bash
-    mask shell
+    chefe run shell
     ```
 
     This selects the registered system `zsh` from `/etc/shells`.
-
-4. **Install Global Dependencies:**
-
-    ```bash
-    mask install
-    ```
 
 ## First Usage
 
@@ -68,23 +67,13 @@ After installation, you can start using your new shell and tools:
 
 ### Technologies Installed
 
-* **[chezmoi](httpss://www.chezmoi.io/):** Manages the dotfiles.
-* **[zsh](httpss://www.zsh.org/):** A powerful shell.
-* **[tmux](httpss://github.com/tmux/tmux/wiki):** A terminal multiplexer.
-* **[LazyVim](httpss://www.lazyvim.org/):** A Neovim setup.
-* **[pixi](httpss://pixi.sh/):** A package manager that does not need SUDO.
+* **[chezmoi](https://www.chezmoi.io/):** Manages the dotfiles.
+* **[zsh](https://www.zsh.org/):** A powerful shell.
+* **[tmux](https://github.com/tmux/tmux/wiki):** A terminal multiplexer.
+* **[LazyVim](https://www.lazyvim.org/):** A Neovim setup.
+* **[chefe](https://phvv.me/chefe):** Installs every CLI from one manifest, no sudo needed.
 
 ## Troubleshooting
-
-### `mask install` fails due to Python version
-
-If you encounter issues with `mask install` on systems with older Python versions (e.g., Python 3.9), it might be due to `tomllib` not being available. You can resolve this by installing a compatible Python version globally via `pixi`:
-
-```bash
-pixi global install python
-```
-
-This will install a recent Python version that includes `tomllib`, allowing the dependency installation script to run correctly.
 
 ### `compilation failed` happens due to GCC not loaded
 

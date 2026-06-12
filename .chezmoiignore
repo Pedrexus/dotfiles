@@ -5,7 +5,3 @@ LICENSE
 pixi*
 .archive
 .archive/**
-
-# Re-include managed dotfiles that the broad `*.toml` / `*.lock` rules exclude.
-!.config/mise/config.toml
-!.config/mise/mise.lock

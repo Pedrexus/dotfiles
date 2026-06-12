@@ -5,8 +5,9 @@
 # REGION: Environment Variables
 # ------------------------------------------------------------------------------
 
+# lvim is a real executable (~/.local/bin/lvim) so non-interactive callers
+# like git, crontab, and tmux popups resolve it without shell aliases.
 export EDITOR='lvim'
-export TERM='xterm-256color'
 
 # ------------------------------------------------------------------------------
 # REGION: PATH Setup
@@ -15,7 +16,6 @@ export TERM='xterm-256color'
 # Keep user binaries first, preserve system paths, and move Pixi bins after
 # the system directories so login shells never resolve to a Pixi shell binary.
 export PIXI_HOME="$HOME/.pixi/$(uname -m)"
-PIXI_NODEJS_GLOBAL_BIN="$HOME/.pixi/envs/nodejs/bin"
 
 typeset -U path PATH
 typeset -a base_path
@@ -23,7 +23,6 @@ typeset -a base_path
 base_path=(${path:#$HOME/.pixi/bin})
 base_path=(${base_path:#$PIXI_HOME/bin})
 base_path=(${base_path:#$PIXI_HOME/envs/nodejs/bin})
-base_path=(${base_path:#$PIXI_NODEJS_GLOBAL_BIN})
 
 path=(
 	$HOME/.local/bin
@@ -33,8 +32,7 @@ path=(
 	$HOME/.pixi/bin
 	$PIXI_HOME/bin
 	$PIXI_HOME/envs/nodejs/bin
-	$PIXI_NODEJS_GLOBAL_BIN
 )
 
 export PATH
-unset base_path PIXI_NODEJS_GLOBAL_BIN
+unset base_path
