@@ -1,2 +1,9 @@
 # ~/.config/starship.toml - Starship prompt configuration
 
+# Slow network filesystems (Lustre on the Miyabi/HPC $WORK trees) blow past starship's 30ms
+# directory-scan and 500ms command defaults, which spams "Scanning current directory timed out".
+# These caps only bite on a slow FS; on a local disk the scan finishes in microseconds and the
+# prompt never waits.
+scan_timeout = 1000
+command_timeout = 2000
+

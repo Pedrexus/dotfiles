@@ -1,0 +1,7 @@
+{
+  // Ignore MD013 (line-length). We wrap markdown prose freely and don't want
+  // line-length warnings from markdownlint-cli2 in the editor or formatter.
+  // markdownlint-cli2 reads this file and applies it to every markdown file in
+  // this directory tree, so it disables the rule everywhere under $HOME.
+  "MD013": false
+}
