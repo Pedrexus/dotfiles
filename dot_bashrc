@@ -112,7 +112,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# Toolbox bins from the chefe global env go after the system paths,
+# Toolbox bins from the pixi global env go after the system paths,
 # mirroring ~/.zshenv so bash-only hosts get the same tools.
 export PIXI_HOME="$HOME/.pixi/$(uname -m)"
 
@@ -122,13 +122,13 @@ filtered_path=()
 IFS=':' read -r -a path_parts <<< "$PATH"
 for path_dir in "${path_parts[@]}"; do
         case "$path_dir" in
-                ""|"$HOME/.pixi/bin"|"$PIXI_HOME/bin"|"$PIXI_HOME/envs/nodejs/bin") ;;
+                ""|"$HOME/.pixi/bin"|"$PIXI_HOME/bin") ;;
                 *) filtered_path+=("$path_dir") ;;
         esac
 done
 
 PATH="$(IFS=':'; printf '%s' "${filtered_path[*]}")"
-export PATH="${PATH:+$PATH:}$HOME/.pixi/bin:$PIXI_HOME/bin:$PIXI_HOME/envs/nodejs/bin"
+export PATH="${PATH:+$PATH:}$HOME/.pixi/bin:$PIXI_HOME/bin"
 
 unset path_dir path_parts filtered_path
 

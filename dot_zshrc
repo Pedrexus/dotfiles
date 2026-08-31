@@ -87,7 +87,7 @@ fi
 # REGION: Starship Prompt
 # ------------------------------------------------------------------------------
 
-# Initialize starship (installed via chefe for cross-platform support)
+# Initialize starship (installed via pixi global for cross-platform support)
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi
@@ -148,4 +148,4 @@ alias cat="bat"
 # Cargo-installed binaries (e.g. tdf, bookokrat terminal PDF viewers)
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# CLI tools are owned by the chefe global env (see chefe.toml), nothing to activate here.
+# CLI tools are owned by the pixi global env (see pixi-global.toml), nothing to activate here.

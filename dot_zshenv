@@ -22,7 +22,6 @@ typeset -a base_path
 
 base_path=(${path:#$HOME/.pixi/bin})
 base_path=(${base_path:#$PIXI_HOME/bin})
-base_path=(${base_path:#$PIXI_HOME/envs/nodejs/bin})
 
 path=(
 	$HOME/.local/bin
@@ -31,7 +30,6 @@ path=(
 	$base_path
 	$HOME/.pixi/bin
 	$PIXI_HOME/bin
-	$PIXI_HOME/envs/nodejs/bin
 )
 
 export PATH
