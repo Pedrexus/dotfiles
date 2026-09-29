@@ -4,3 +4,8 @@ encryption = "age"
 [age]
     identity = "~/.config/chezmoi/key.age"
     recipient = "age1ch957cgzj2ajfghqwagcxfsgfmcmjalklls42ze50zdrdk24cgrsefst7f"
+
+# Scripts are Python, run by pixi, so no system needs a Python of its own to apply these files.
+[interpreters.py]
+    command = "pixi"
+    args = ["exec", "--spec", "python=3.14", "python"]

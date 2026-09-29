@@ -13,7 +13,11 @@ recipes/**
 AppData
 AppData/**
 {{ else }}
-# Git Bash keeps its own startup files; zsh is the shell these dotfiles set up on Windows.
+# Git Bash keeps its own startup files; zsh is the shell these dotfiles set up on Windows, and
+# herdr its multiplexer.
 .bashrc
 .profile
+.tmux.conf
+.tmux
+.tmux/**
 {{ end }}

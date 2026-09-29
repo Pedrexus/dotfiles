@@ -20,6 +20,7 @@ gh              = ">=2.101.0,<3"
 ghostscript     = ">=10.08.0,<11"
 git             = ">=2.55.0,<3"
 git-lfs         = ">=3.8.0,<4"
+herdr           = ">=0.9.1,<0.10"     # the terminal multiplexer on every system, Windows natively
 imagemagick     = ">=7.1.2,<8"
 ipython         = ">=9.17.1,<10"
 jaq             = ">=3.1.1,<4"         # jq's language, native everywhere (conda-forge builds jq for Unix only)
@@ -28,6 +29,7 @@ nodejs          = ">=26.10.0,<27"
 nvim            = ">=0.12.5,<0.13"
 pandoc          = ">=3.11,<4"
 poppler         = ">=26.09.0"
+powershell      = ">=7.6.6,<8"        # pwsh 7: the same PowerShell everywhere, not Windows' 5.1
 python          = ">=3.14,<3.15"
 qpdf            = ">=12.4.1,<13"
 ripgrep         = ">=15.2.0,<16"
@@ -59,6 +61,7 @@ fzf = "fzf"
 gh = "gh"
 git = "git"
 git-lfs = "git-lfs"
+herdr = "herdr"
 ipython = "ipython"
 jaq = "jaq"
 lazygit = "lazygit"
@@ -74,6 +77,7 @@ pdfseparate = "pdfseparate"
 pdftoppm = "pdftoppm"
 pdftotext = "pdftotext"
 pdfunite = "pdfunite"
+pwsh = "pwsh"
 python = "python"
 qpdf = "qpdf"
 rg = "rg"
@@ -94,15 +98,14 @@ tmux = "tmux"
 {{- end }}
 {{- if eq .chezmoi.os "windows" }}
 
-# zsh and tmux for Windows: MSYS2's own builds on conda-forge's MSYS2 runtime, the two missing
-# packages built from recipes/ into a local channel. Only zsh is exposed: MSYS's coreutils would
-# shadow Windows' own find, sort and timeout; inside zsh they are on PATH as /usr/bin.
+# zsh for Windows: MSYS2's own build on conda-forge's MSYS2 runtime, the one missing package built
+# from recipes/ into a local channel. Only zsh is exposed: MSYS's coreutils would shadow Windows'
+# own find, sort and timeout; inside zsh they are on PATH as /usr/bin.
 [envs.msys]
 channels = ["file:///{{ .chezmoi.homeDir | replace "\\" "/" }}/.cache/dotfiles/channel", "conda-forge"]
 
 [envs.msys.dependencies]
 m2-zsh       = ">=5.9.2"
-m2-tmux      = "*"                # upstream spells it 3.7c, which conda orders below 3.7
 m2-coreutils = "*"
 m2-findutils = "*"
 m2-grep      = "*"

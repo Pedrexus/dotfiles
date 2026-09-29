@@ -1,0 +1,48 @@
+# Keep pixi global's toolbox equal to .chezmoitemplates/pixi-global.toml, on every system. chezmoi
+# runs this through pixi's Python (see .chezmoi.toml.tmpl) whenever the rendered manifest or, on
+# Windows, a recipe changes, so an edit is one `chezmoi apply` away.
+# recipes: {{ range (glob (joinPath .chezmoi.sourceDir "recipes/*/recipe.yaml")) }}{{ include . | sha256sum | trunc 12 }} {{ end }}
+import os
+import platform
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+MANIFEST = r"""{{ template "pixi-global.toml" . }}"""
+WINDOWS = sys.platform == "win32"
+
+home = Path.home()
+# One pixi home per architecture on Linux and macOS: an HPC home is shared by x86-64 and aarch64.
+pixi_home = home / ".pixi" if WINDOWS else home / ".pixi" / platform.machine()
+environment = {**os.environ, "PIXI_HOME": str(pixi_home)}
+
+
+def run(*argv: str) -> None:
+    subprocess.run(argv, env=environment, check=True)
+
+
+if WINDOWS:
+    # zsh for Windows: MSYS2's build, repackaged into a local channel beside conda-forge's MSYS2.
+    channel = home / ".cache" / "dotfiles" / "channel"
+    recipes = r"{{ joinPath .chezmoi.sourceDir "recipes" }}"
+    run("pixi", "exec", "rattler-build", "build", "--recipe-dir", recipes,
+        "--output-dir", str(channel), "-c", "conda-forge", "--skip-existing", "all")
+
+# The manifest is this repository's: never overwrite environments it does not declare.
+manifest = pixi_home / "manifests" / "pixi-global.toml"
+if manifest.is_file():
+    declared = re.findall(r"(?m)^\[envs\.([\w-]+)", manifest.read_text(encoding="utf-8"))
+    if foreign := sorted(set(declared) - {"dotfiles", "msys"}):
+        sys.exit(f"{manifest} declares {', '.join(foreign)}, which these dotfiles do not; "
+                 "move them into .chezmoitemplates/pixi-global.toml first")
+manifest.parent.mkdir(parents=True, exist_ok=True)
+manifest.write_text(MANIFEST, encoding="utf-8")
+run("pixi", "global", "sync")
+
+if WINDOWS:
+    # MSYS finds the home through nsswitch rather than HOME: make it the Windows one, so zsh,
+    # chezmoi and every other program agree on ~.
+    nsswitch = pixi_home / "envs" / "msys" / "Library" / "etc" / "nsswitch.conf"
+    text = nsswitch.read_text(encoding="utf-8")
+    nsswitch.write_text(re.sub(r"(?m)^db_home:.*$", "db_home: windows", text), encoding="utf-8")

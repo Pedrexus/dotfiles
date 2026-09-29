@@ -1,6 +1,6 @@
 # Dotfiles
 
-My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/): the same zsh, tmux, Neovim
+My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/): the same zsh, herdr, Neovim
 and command-line toolbox on Linux, macOS and Windows, set up by one command and no sudo.
 
 ## Installation
@@ -36,13 +36,13 @@ rsync -aP ~/key.age machine:~/.config/chezmoi/
 | | Linux | macOS | Windows |
 |---|---|---|---|
 | shell | the system's zsh | the system's zsh | MSYS2's zsh, through pixi |
-| terminal multiplexer | tmux | tmux | MSYS2's tmux, through pixi |
+| terminal multiplexer | herdr (tmux kept) | herdr (tmux kept) | herdr |
 | toolbox | pixi global | pixi global | pixi global |
 | prompt, plugins | starship, fzf-tab, autosuggestions, syntax highlighting | same | same |
 
 - **The toolbox** lives in [`.chezmoitemplates/pixi-global.toml`](.chezmoitemplates/pixi-global.toml):
-  git, gh, lazygit, nvim, ripgrep, fd, fzf, bat, eza, zoxide, starship, jaq, bottom, uv, python,
-  node, rust, pandoc and the PDF and image tools. Every package there is built by conda-forge for
+  git, gh, lazygit, nvim, ripgrep, fd, fzf, bat, eza, zoxide, starship, jaq, bottom, herdr, pwsh,
+  uv, python, node, rust, pandoc and the PDF and image tools. Every package there is built by conda-forge for
   all four platforms, and a synced environment exposes exactly what its `exposed` table lists.
 - **zsh plugins** are plain files from [`.chezmoiexternal.toml`](.chezmoiexternal.toml),
   refreshed weekly, so no plugin manager runs when a shell starts.
@@ -50,16 +50,21 @@ rsync -aP ~/key.age machine:~/.config/chezmoi/
   cannot be changed, an interactive bash hands over to zsh (`DOTFILES_BASH=1` keeps bash). pixi
   keeps one home per architecture (`~/.pixi/$(uname -m)`), so an HPC home shared by x86-64 and
   aarch64 nodes works.
-- **Windows:** conda-forge ships MSYS2's runtime and tools (`m2-*`) but not zsh or tmux, so
-  [`recipes/`](recipes) repackages MSYS2's own builds and applying builds them into
-  `~/.cache/dotfiles/channel` (seconds, sources pinned by sha256). zsh opens from the "zsh"
+- **One script:** the toolbox step is [Python](run_onchange_after_10-toolbox.py.tmpl) that pixi
+  runs, the same file on every system; only the two-line bootstraps above are shell.
+- **herdr** is the multiplexer everywhere, Windows included: it keeps its own ssh connection to
+  each saved machine (`herdr machine add gold`) and the sessions running when the client leaves.
+- **Windows:** conda-forge ships MSYS2's runtime and tools (`m2-*`) but not zsh, so
+  [`recipes/`](recipes) repackages MSYS2's own build and applying builds it into
+  `~/.cache/dotfiles/channel` (seconds, source pinned by sha256). zsh opens from the "zsh"
   profile in Windows Terminal. Make it the default in Settings > Startup. MSYS's coreutils stay
   inside zsh, so Windows' own `find` and `sort` keep working everywhere else. ssh stays Windows'
   or Git's: MSYS2's OpenSSH cannot share connections on Windows either.
 
 ## First usage
 
-Start `zsh`, then `tmux`. Inside tmux, `Ctrl+A` then `I` installs the tmux plugins.
+Start `zsh`, then `herdr`; `ctrl+b q` detaches and `herdr` reattaches. tmux stays on Linux and
+macOS with the old configuration: inside it, `Ctrl+A` then `I` installs its plugins.
 
 ## Troubleshooting
 
