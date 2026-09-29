@@ -42,7 +42,6 @@ zoxide          = ">=0.10.0,<0.11"
 {{- if ne .chezmoi.os "windows" }}
 nvitop          = ">=1.7.1,<2"
 parallel        = ">=20260722"
-tmux            = ">=3.6"
 {{- end }}
 
 [envs.dotfiles.exposed]
@@ -94,7 +93,6 @@ gs = "gswin64c"
 gs = "gs"
 nvitop = "nvitop"
 parallel = "parallel"
-tmux = "tmux"
 {{- end }}
 {{- if eq .chezmoi.os "windows" }}
 

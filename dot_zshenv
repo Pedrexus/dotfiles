@@ -6,14 +6,14 @@
 # ------------------------------------------------------------------------------
 
 # lvim is a real executable (~/.local/bin/lvim) so non-interactive callers
-# like git, crontab, and tmux popups resolve it without shell aliases.
+# like git and crontab resolve it without shell aliases.
 export EDITOR='lvim'
 
 # pixi global keeps one home per architecture on Linux and macOS, since an HPC home is shared by
 # x86-64 login and aarch64 compute nodes. Windows (zsh on MSYS) has one: pixi's own.
 if [[ $OSTYPE == (msys|cygwin)* ]]; then
     export PIXI_HOME="$HOME/.pixi"
-    # Windows Terminal and tmux start zsh as a plain interactive shell: MSYS's /etc/profile costs
+    # Windows Terminal and herdr start zsh as a plain interactive shell: MSYS's /etc/profile costs
     # 200 ms and complains on every start that it cannot create /dev/shm in pixi's prefix. What it
     # set that matters is set here, and a login shell (ssh) keeps the Windows PATH through it.
     export MSYS2_PATH_TYPE=inherit

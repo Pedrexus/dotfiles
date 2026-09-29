@@ -38,11 +38,3 @@ refreshPeriod = "168h"
 type = "file"
 url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh"
 refreshPeriod = "168h"
-
-# tmux's plugin manager, which .tmux.conf otherwise clones itself on first start.
-[".tmux/plugins/tpm"]
-type = "archive"
-url = "https://github.com/tmux-plugins/tpm/archive/refs/heads/master.tar.gz"
-exact = true
-stripComponents = 1
-refreshPeriod = "168h"

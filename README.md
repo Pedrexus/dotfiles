@@ -21,7 +21,7 @@ From a checkout, run `sh install.sh` or `powershell -ExecutionPolicy Bypass -Fil
 instead, and chezmoi uses that checkout as its source.
 
 The script installs [pixi](https://pixi.sh) when it is missing, then runs `chezmoi init --apply`
-through it. Applying writes the dotfiles, fetches the zsh and tmux plugins, and installs the
+through it. Applying writes the dotfiles, fetches the zsh plugins, and installs the
 toolbox with `pixi global`. Afterwards `chezmoi apply` keeps everything in step: an edit to the
 toolbox manifest is one apply away.
 
@@ -36,7 +36,7 @@ rsync -aP ~/key.age machine:~/.config/chezmoi/
 | | Linux | macOS | Windows |
 |---|---|---|---|
 | shell | the system's zsh | the system's zsh | MSYS2's zsh, through pixi |
-| terminal multiplexer | herdr (tmux kept) | herdr (tmux kept) | herdr |
+| terminal multiplexer | herdr | herdr | herdr |
 | toolbox | pixi global | pixi global | pixi global |
 | prompt, plugins | starship, fzf-tab, autosuggestions, syntax highlighting | same | same |
 
@@ -63,8 +63,9 @@ rsync -aP ~/key.age machine:~/.config/chezmoi/
 
 ## First usage
 
-Start `zsh`, then `herdr`; `ctrl+b q` detaches and `herdr` reattaches. tmux stays on Linux and
-macOS with the old configuration: inside it, `Ctrl+A` then `I` installs its plugins.
+Start `zsh`, then `herdr`; `ctrl+b q` detaches and `herdr` reattaches. herdr is the one
+multiplexer: tmux is not installed or configured here (a Linux host's own `/usr/bin/tmux` is what
+`mb shell --on <host> --keep` wraps an allocation in, untouched).
 
 ## Troubleshooting
 
