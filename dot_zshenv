@@ -31,6 +31,11 @@ fi
 # the system directories so login shells never resolve to a Pixi shell binary.
 # A function, since a login shell's /etc/zprofile (macOS path_helper, MSYS's
 # /etc/profile) reorders PATH after this file and ~/.zprofile runs it again.
+#
+# mainboard writes its workspace environment's directories to ~/.config/mainboard/path.sh on the
+# machine it manages (`mb center verify`); these files own the startup, so they source it.
+[[ -r $HOME/.config/mainboard/path.sh ]] && source "$HOME/.config/mainboard/path.sh"
+
 dotfiles_path() {
     typeset -gU path PATH
     local -a base

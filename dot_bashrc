@@ -2,6 +2,10 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# mainboard's workspace environment, where it manages this machine (see ~/.zshenv); before the
+# interactive check, since ssh runs a command through a non-interactive bash that reads this file
+[ -r "$HOME/.config/mainboard/path.sh" ] && . "$HOME/.config/mainboard/path.sh"
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;

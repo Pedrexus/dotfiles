@@ -19,6 +19,8 @@ for dir in "$HOME/.pixi/bin" "$PIXI_HOME/bin"; do
     [ -d "$dir" ] && PATH="$PATH:$dir"
 done
 unset dir
+# mainboard's workspace environment, where it manages this machine (see ~/.zshenv)
+[ -r "$HOME/.config/mainboard/path.sh" ] && . "$HOME/.config/mainboard/path.sh"
 
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
