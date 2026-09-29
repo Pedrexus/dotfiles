@@ -1,89 +1,65 @@
 # Dotfiles
 
-This project contains my personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/).
-It sets up a consistent development environment across multiple machines.
+My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/): the same zsh, tmux, Neovim
+and command-line toolbox on Linux, macOS and Windows, set up by one command and no sudo.
 
 ## Installation
 
-All tooling lives in `pixi-global.toml` and is installed with
-[pixi global](https://pixi.sh/latest/global_tools/introduction/).
+Linux or macOS:
 
-1. **Install `pixi`:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Pedrexus/dotfiles/main/install.sh | sh
+```
 
-    ```bash
-    curl -fsSL https://pixi.sh/install.sh | sh
-    ```
+Windows (PowerShell):
 
-    Install `zsh` with your system package manager before setting the login shell below.
-    On Debian, Ubuntu, or Raspberry Pi OS that is `sudo apt install -y zsh`.
+```powershell
+irm https://raw.githubusercontent.com/Pedrexus/dotfiles/main/install.ps1 | iex
+```
 
-2. **Move the age key to the new machine:**
+From a checkout, run `sh install.sh` or `powershell -ExecutionPolicy Bypass -File install.ps1`
+instead, and chezmoi uses that checkout as its source.
 
-    ```bash
-    rsync -aP ~/key.age machine:~/.config/chezmoi/
-    ```
+The script installs [pixi](https://pixi.sh) when it is missing, then runs `chezmoi init --apply`
+through it. Applying writes the dotfiles, fetches the zsh and tmux plugins, and installs the
+toolbox with `pixi global`. Afterwards `chezmoi apply` keeps everything in step: an edit to the
+toolbox manifest is one apply away.
 
-3. **Install the toolbox:**
+To carry encrypted files, move the age key first:
 
-    ```bash
-    export PIXI_HOME="$HOME/.pixi/$(uname -m)"
-    mkdir -p "$PIXI_HOME/manifests"
-    curl -fsSLo "$PIXI_HOME/manifests/pixi-global.toml" \
-        https://raw.githubusercontent.com/Pedrexus/dotfiles/main/pixi-global.toml
-    pixi global sync
-    ```
+```bash
+rsync -aP ~/key.age machine:~/.config/chezmoi/
+```
 
-    This installs every CLI declared in `pixi-global.toml` (chezmoi, age, tmux, nvim, and friends)
-    into the shared global env at `$PIXI_HOME`. After editing the manifest, copy it back into
-    `$PIXI_HOME/manifests/` and run `pixi global sync` again.
+## What each system gets
 
-4. **Initialize `chezmoi`:**
+| | Linux | macOS | Windows |
+|---|---|---|---|
+| shell | the system's zsh | the system's zsh | MSYS2's zsh, through pixi |
+| terminal multiplexer | tmux | tmux | MSYS2's tmux, through pixi |
+| toolbox | pixi global | pixi global | pixi global |
+| prompt, plugins | starship, fzf-tab, autosuggestions, syntax highlighting | same | same |
 
-    ```bash
-    chezmoi init Pedrexus/dotfiles.git
-    ```
+- **The toolbox** lives in [`.chezmoitemplates/pixi-global.toml`](.chezmoitemplates/pixi-global.toml):
+  git, gh, lazygit, nvim, ripgrep, fd, fzf, bat, eza, zoxide, starship, jaq, bottom, uv, python,
+  node, rust, pandoc and the PDF and image tools. Every package there is built by conda-forge for
+  all four platforms, and a synced environment exposes exactly what its `exposed` table lists.
+- **zsh plugins** are plain files from [`.chezmoiexternal.toml`](.chezmoiexternal.toml),
+  refreshed weekly, so no plugin manager runs when a shell starts.
+- **Linux without sudo:** zsh must come from the system (`apt install zsh`). Where the login shell
+  cannot be changed, an interactive bash hands over to zsh (`DOTFILES_BASH=1` keeps bash). pixi
+  keeps one home per architecture (`~/.pixi/$(uname -m)`), so an HPC home shared by x86-64 and
+  aarch64 nodes works.
+- **Windows:** conda-forge ships MSYS2's runtime and tools (`m2-*`) but not zsh or tmux, so
+  [`recipes/`](recipes) repackages MSYS2's own builds and applying builds them into
+  `~/.cache/dotfiles/channel` (seconds, sources pinned by sha256). zsh opens from the "zsh"
+  profile in Windows Terminal. Make it the default in Settings > Startup. MSYS's coreutils stay
+  inside zsh, so Windows' own `find` and `sort` keep working everywhere else. ssh stays Windows'
+  or Git's: MSYS2's OpenSSH cannot share connections on Windows either.
 
-5. **Set `zsh` as the default login shell:**
+## First usage
 
-    ```bash
-    sudo chsh -s "$(awk '/^\/(usr\/)?bin\/zsh$/ { print; exit }' /etc/shells)" "$USER"
-    ```
-
-    This selects the registered system `zsh` from `/etc/shells`.
-
-6. **Install [Claude Code](https://claude.com/claude-code):**
-
-    ```bash
-    curl -fsSL https://claude.ai/install.sh | bash
-    ```
-
-    The native installer puts `claude` in `~/.local/bin`, already first on `PATH`.
-
-## First Usage
-
-After installation, you can start using your new shell and tools:
-
-1. **Start Zsh:**
-
-    ```bash
-    zsh
-    ```
-
-2. **Start Tmux:**
-
-    ```bash
-    tmux
-    ```
-
-    Inside tmux, press `Ctrl+A` then `I` to install tmux plugin dependencies.
-
-### Technologies Installed
-
-* **[chezmoi](https://www.chezmoi.io/):** Manages the dotfiles.
-* **[zsh](https://www.zsh.org/):** A powerful shell.
-* **[tmux](https://github.com/tmux/tmux/wiki):** A terminal multiplexer.
-* **[LazyVim](https://www.lazyvim.org/):** A Neovim setup.
-* **[pixi](https://pixi.sh):** Installs every CLI from one manifest, no sudo needed.
+Start `zsh`, then `tmux`. Inside tmux, `Ctrl+A` then `I` installs the tmux plugins.
 
 ## Troubleshooting
 

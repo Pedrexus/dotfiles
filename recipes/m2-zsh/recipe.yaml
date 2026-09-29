@@ -1,0 +1,36 @@
+# MSYS2's zsh, repackaged the way conda-forge ships the rest of MSYS2 (m2-bash, m2-openssh, ...),
+# so pixi installs zsh on Windows like every other tool. conda-forge carries no m2-zsh yet.
+context:
+  version: 5.9.2
+  release: 1
+
+package:
+  name: m2-zsh
+  version: ${{ version }}.${{ release }}
+
+source:
+  url: https://repo.msys2.org/msys/x86_64/zsh-${{ version }}-${{ release }}-x86_64.pkg.tar.zst
+  sha256: 9a134200a152d90a0f1820d6aa74c3369d8539c068b523852549d74b16739fa8
+
+build:
+  number: 0
+  noarch: generic
+  # robocopy copes with long paths; it exits below 8 on success, `ver` resets that to 0 for the
+  # check rattler-build appends to every line.
+  script:
+    - robocopy usr "%PREFIX%\Library\usr" /E /NFL /NDL /NJH /NJS & if errorlevel 8 (exit /b 1) else (ver > nul)
+    - robocopy etc "%PREFIX%\Library\etc" /E /NFL /NDL /NJH /NJS & if errorlevel 8 (exit /b 1) else (ver > nul)
+
+requirements:
+  run:
+    - __win
+    - m2-msys2-runtime
+    - m2-filesystem
+    - m2-ncurses
+    - m2-libpcre2_8
+    - m2-libiconv
+
+about:
+  homepage: https://www.zsh.org
+  license: MIT-Modern-Variant
+  summary: The Z shell, the MSYS2 build

@@ -3,5 +3,17 @@ LICENSE
 *.toml
 *.lock
 pixi*
+install.sh
+install.ps1
+recipes
+recipes/**
 .archive
 .archive/**
+{{ if ne .chezmoi.os "windows" }}
+AppData
+AppData/**
+{{ else }}
+# Git Bash keeps its own startup files; zsh is the shell these dotfiles set up on Windows.
+.bashrc
+.profile
+{{ end }}

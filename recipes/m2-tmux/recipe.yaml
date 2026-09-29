@@ -1,0 +1,33 @@
+# MSYS2's tmux for Windows, repackaged beside conda-forge's MSYS2 packages (see m2-zsh).
+context:
+  version: 3.7.c
+  release: 1
+
+package:
+  name: m2-tmux
+  version: ${{ version }}.${{ release }}
+
+source:
+  url: https://repo.msys2.org/msys/x86_64/tmux-${{ version }}-${{ release }}-x86_64.pkg.tar.zst
+  sha256: d8294c959d340ded4c5edcfd597a1ab30e345633031f8ed07a6cfe3600113158
+
+build:
+  number: 0
+  noarch: generic
+  # robocopy copes with long paths; it exits below 8 on success, `ver` resets that to 0 for the
+  # check rattler-build appends to every line.
+  script:
+    - robocopy usr "%PREFIX%\Library\usr" /E /NFL /NDL /NJH /NJS & if errorlevel 8 (exit /b 1) else (ver > nul)
+
+requirements:
+  run:
+    - __win
+    - m2-msys2-runtime
+    - m2-filesystem
+    - m2-ncurses
+    - m2-libevent
+
+about:
+  homepage: https://github.com/tmux/tmux
+  license: ISC
+  summary: The terminal multiplexer, the MSYS2 build

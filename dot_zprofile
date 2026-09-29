@@ -1,0 +1,3 @@
+# ~/.zprofile: login shells, after the system's /etc/zprofile reordered PATH (macOS path_helper,
+# MSYS's /etc/profile on Windows); ~/.zshenv's order goes back in front.
+dotfiles_path

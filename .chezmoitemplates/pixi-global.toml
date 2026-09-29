@@ -1,0 +1,114 @@
+# The toolbox every machine gets from pixi global, the same tools on Linux, macOS and Windows.
+# `chezmoi apply` renders this into $PIXI_HOME/manifests and runs `pixi global sync` whenever it
+# changes. `exposed` is required: a synced environment puts only what it lists on PATH.
+version = 1
+
+[envs.dotfiles]
+channels = ["conda-forge"]
+
+[envs.dotfiles.dependencies]
+age             = ">=1.3.2,<2"
+bat             = ">=0.26.1,<0.27"
+bottom          = ">=0.14.7,<0.15"     # btm, the system monitor that also runs on Windows
+chezmoi         = ">=2.72.2,<3"
+dust            = ">=1.2.6,<2"
+eza             = ">=0.23.5,<0.24"
+fd-find         = ">=10.5.0,<11"
+ffmpeg          = ">=9.0.2,<10"
+fzf             = ">=0.74.4,<0.75"
+gh              = ">=2.101.0,<3"
+ghostscript     = ">=10.08.0,<11"
+git             = ">=2.55.0,<3"
+git-lfs         = ">=3.8.0,<4"
+imagemagick     = ">=7.1.2,<8"
+ipython         = ">=9.17.1,<10"
+jaq             = ">=3.1.1,<4"         # jq's language, native everywhere (conda-forge builds jq for Unix only)
+lazygit         = ">=0.65.1,<0.66"
+nodejs          = ">=26.10.0,<27"
+nvim            = ">=0.12.5,<0.13"
+pandoc          = ">=3.11,<4"
+poppler         = ">=26.09.0"
+python          = ">=3.14,<3.15"
+qpdf            = ">=12.4.1,<13"
+ripgrep         = ">=15.2.0,<16"
+rust            = ">=1.98.1,<2"
+starship        = ">=1.26.0,<2"
+tree-sitter-cli = ">=0.27.0,<0.28"     # LazyVim's treesitter compiles its parsers with it
+uv              = ">=0.12.19,<0.13"
+xh              = ">=0.26.2,<0.27"
+zoxide          = ">=0.10.0,<0.11"
+{{- if ne .chezmoi.os "windows" }}
+nvitop          = ">=1.7.1,<2"
+parallel        = ">=20260722"
+tmux            = ">=3.6"
+{{- end }}
+
+[envs.dotfiles.exposed]
+age = "age"
+age-keygen = "age-keygen"
+bat = "bat"
+btm = "btm"
+cargo = "cargo"
+chezmoi = "chezmoi"
+dust = "dust"
+eza = "eza"
+fd = "fd"
+ffmpeg = "ffmpeg"
+ffprobe = "ffprobe"
+fzf = "fzf"
+gh = "gh"
+git = "git"
+git-lfs = "git-lfs"
+ipython = "ipython"
+jaq = "jaq"
+lazygit = "lazygit"
+magick = "magick"
+node = "node"
+npm = "npm"
+npx = "npx"
+nvim = "nvim"
+pandoc = "pandoc"
+pdfimages = "pdfimages"
+pdfinfo = "pdfinfo"
+pdfseparate = "pdfseparate"
+pdftoppm = "pdftoppm"
+pdftotext = "pdftotext"
+pdfunite = "pdfunite"
+python = "python"
+qpdf = "qpdf"
+rg = "rg"
+rustc = "rustc"
+starship = "starship"
+tree-sitter = "tree-sitter"
+uv = "uv"
+uvx = "uvx"
+xh = "xh"
+zoxide = "zoxide"
+{{- if eq .chezmoi.os "windows" }}
+gs = "gswin64c"
+{{- else }}
+gs = "gs"
+nvitop = "nvitop"
+parallel = "parallel"
+tmux = "tmux"
+{{- end }}
+{{- if eq .chezmoi.os "windows" }}
+
+# zsh and tmux for Windows: MSYS2's own builds on conda-forge's MSYS2 runtime, the two missing
+# packages built from recipes/ into a local channel. Only zsh is exposed: MSYS's coreutils would
+# shadow Windows' own find, sort and timeout; inside zsh they are on PATH as /usr/bin.
+[envs.msys]
+channels = ["file:///{{ .chezmoi.homeDir | replace "\\" "/" }}/.cache/dotfiles/channel", "conda-forge"]
+
+[envs.msys.dependencies]
+m2-zsh       = ">=5.9.2"
+m2-tmux      = "*"                # upstream spells it 3.7c, which conda orders below 3.7
+m2-coreutils = "*"
+m2-findutils = "*"
+m2-grep      = "*"
+m2-less      = "*"
+m2-sed       = "*"
+
+[envs.msys.exposed]
+zsh = "zsh"
+{{- end }}

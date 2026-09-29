@@ -11,10 +11,6 @@ setopt NO_BEEP             # Disable system beeps
 setopt NOBGNICE            # Don't lower priority of background jobs
 MAILCHECK=0                # Disable mail checking
 
-if command -v fzf >/dev/null 2>&1; then
-    source <(fzf --zsh)
-fi
-
 # ------------------------------------------------------------------------------
 # REGION: Zsh Modules
 # ------------------------------------------------------------------------------
@@ -25,72 +21,67 @@ zmodload zsh/stat
 zmodload zsh/regex
 
 # ------------------------------------------------------------------------------
-# REGION: Zinit Plugin Manager
+# REGION: Cached Init Scripts
 # ------------------------------------------------------------------------------
 
-# Install Zinit if it's not already installed
-zinit_home="$HOME/.local/share/zinit/zinit.git/zinit.zsh"
-
-if [[ ! -f $zinit_home ]]; then
-    print -P "%F{33}%F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
-    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
-        print -P "%F{33}%F{34}Installation successful.%f%b" || \
-        print -P "%F{160}The clone has failed.%f%b"
-fi
-
-if [[ -f $zinit_home ]]; then
-    source "$zinit_home"
-    autoload -Uz _zinit
-    (( ${+_comps} )) && _comps[zinit]=_zinit
-
-    # Load Zinit annexes
-    zinit light-mode for \
-        zdharma-continuum/zinit-annex-as-monitor \
-        zdharma-continuum/zinit-annex-bin-gem-node \
-        zdharma-continuum/zinit-annex-patch-dl \
-        zdharma-continuum/zinit-annex-rust
-
-    # ------------------------------------------------------------------------------
-    # REGION: Zinit Plugins
-    # ------------------------------------------------------------------------------
-
-    # Zsh plugins
-    zinit snippet OMZP::git
-    zinit snippet OMZP::python
-    zinit snippet OMZP::sudo
-    zinit snippet OMZP::command-not-found
-
-    # Extra completion definitions must be on fpath before compinit runs
-    zinit light zsh-users/zsh-completions
-
-    # ------------------------------------------------------------------------------
-    # REGION: Completions
-    # ------------------------------------------------------------------------------
-
-    # Cached compinit, only rebuild the dump when it is older than a day
-    autoload -Uz compinit
-    if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-        compinit
-    else
-        compinit -C
+# Source what `$@` prints, cached until the command's binary changes: starting a program only to
+# print the same script costs a process per shell, which Windows charges dearly for.
+cached_init() {
+    local name=$1 binary=${commands[$2]}
+    [[ -n $binary ]] || return
+    local cache=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/$name.zsh
+    if [[ ! -s $cache || $binary -nt $cache ]]; then
+        mkdir -p ${cache:h}
+        "${@:2}" >| $cache
     fi
-    zinit cdreplay -q
+    source $cache
+}
 
-    # fzf-tab loads after compinit, autosuggestions and syntax-highlighting go last
-    zinit light Aloxaf/fzf-tab
-    zinit light zsh-users/zsh-autosuggestions
-    zinit light zsh-users/zsh-syntax-highlighting
-fi
+cached_init fzf fzf --zsh
 
 # ------------------------------------------------------------------------------
-# REGION: Starship Prompt
+# REGION: Plugins
 # ------------------------------------------------------------------------------
 
-# Initialize starship (installed via pixi global for cross-platform support)
-if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
-fi
+# Plain files chezmoi keeps current (.chezmoiexternal.toml): nothing is fetched or compiled at
+# shell start, which also keeps zsh fast on Windows, where every fork is slow.
+plugins="$HOME/.local/share/zsh/plugins"
+
+# Extra completion definitions must be on fpath before compinit runs
+fpath=("$plugins/zsh-completions/src" $fpath)
+
+# ------------------------------------------------------------------------------
+# REGION: Completions
+# ------------------------------------------------------------------------------
+
+# Cached compinit, only rebuild (and audit) the dump when it is older than a day. The (#q)
+# qualifier needs extendedglob; without it the test was a plain string and always rebuilt.
+autoload -Uz compinit
+() {
+    setopt localoptions extendedglob
+    local dump=${ZDOTDIR:-$HOME}/.zcompdump
+    if [[ ! -s $dump || -n $dump(#qN.mh+24) ]]; then
+        compinit -d $dump
+    else
+        compinit -C -d $dump
+    fi
+}
+
+# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after
+# compinit, autosuggestions and syntax-highlighting go last
+for plugin in git sudo fzf-tab/fzf-tab zsh-autosuggestions/zsh-autosuggestions \
+    zsh-syntax-highlighting/zsh-syntax-highlighting; do
+    [[ -r $plugins/$plugin.plugin.zsh ]] && source "$plugins/$plugin.plugin.zsh"
+done
+unset plugin plugins
+
+# ------------------------------------------------------------------------------
+# REGION: Prompt and Navigation
+# ------------------------------------------------------------------------------
+
+# Starship and zoxide come from the pixi global toolbox on every system
+cached_init starship starship init zsh --print-full-init
+cached_init zoxide zoxide init zsh
 
 # ------------------------------------------------------------------------------
 # REGION: History
@@ -128,7 +119,11 @@ zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
 # Switch group using `<` and `>`
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':fzf-tab:*' switch-group '<' '>'
-zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+
+# Complete in a tmux popup when inside tmux
+if [[ -n $TMUX ]]; then
+    zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+fi
 
 # ------------------------------------------------------------------------------
 # REGION: Aliases
@@ -141,11 +136,9 @@ alias lvim="NVIM_APPNAME=lazyvim nvim"
 alias vim="NVIM_APPNAME=lazyvim nvim"
 alias cat="bat"
 
-# ------------------------------------------------------------------------------
-# REGION: PATH
-# ------------------------------------------------------------------------------
+# jaq speaks jq's language and runs everywhere; jq itself only where the system has it
+if (( ! $+commands[jq] && $+commands[jaq] )); then
+    alias jq=jaq
+fi
 
-# Cargo-installed binaries (e.g. tdf, bookokrat terminal PDF viewers)
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# CLI tools are owned by the pixi global env (see pixi-global.toml), nothing to activate here.
+# CLI tools are owned by the pixi global env (see .chezmoitemplates/pixi-global.toml).

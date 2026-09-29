@@ -9,28 +9,42 @@
 # like git, crontab, and tmux popups resolve it without shell aliases.
 export EDITOR='lvim'
 
+# pixi global keeps one home per architecture on Linux and macOS, since an HPC home is shared by
+# x86-64 login and aarch64 compute nodes. Windows (zsh on MSYS) has one: pixi's own.
+if [[ $OSTYPE == (msys|cygwin)* ]]; then
+    export PIXI_HOME="$HOME/.pixi"
+    # Windows Terminal and tmux start zsh as a plain interactive shell: MSYS's /etc/profile costs
+    # 200 ms and complains on every start that it cannot create /dev/shm in pixi's prefix. What it
+    # set that matters is set here, and a login shell (ssh) keeps the Windows PATH through it.
+    export MSYS2_PATH_TYPE=inherit
+    export LANG=${LANG:-C.UTF-8} SHELL=/usr/bin/zsh
+    path=(/usr/local/bin /usr/bin /bin $path)
+else
+    export PIXI_HOME="$HOME/.pixi/$(uname -m)"
+fi
+
 # ------------------------------------------------------------------------------
 # REGION: PATH Setup
 # ------------------------------------------------------------------------------
 
 # Keep user binaries first, preserve system paths, and move Pixi bins after
 # the system directories so login shells never resolve to a Pixi shell binary.
-export PIXI_HOME="$HOME/.pixi/$(uname -m)"
-
-typeset -U path PATH
-typeset -a base_path
-
-base_path=(${path:#$HOME/.pixi/bin})
-base_path=(${base_path:#$PIXI_HOME/bin})
-
-path=(
-	$HOME/.local/bin
-	$HOME/.docker/bin
-	$HOME/bin
-	$base_path
-	$HOME/.pixi/bin
-	$PIXI_HOME/bin
-)
-
-export PATH
-unset base_path
+# A function, since a login shell's /etc/zprofile (macOS path_helper, MSYS's
+# /etc/profile) reorders PATH after this file and ~/.zprofile runs it again.
+dotfiles_path() {
+    typeset -gU path PATH
+    local -a base
+    base=(${path:#$HOME/.pixi/bin})
+    base=(${base:#$PIXI_HOME/bin})
+    path=(
+        $HOME/.local/bin
+        $HOME/.cargo/bin
+        $HOME/.docker/bin
+        $HOME/bin
+        $base
+        $HOME/.pixi/bin
+        $PIXI_HOME/bin
+    )
+    export PATH
+}
+dotfiles_path

@@ -8,6 +8,13 @@ case $- in
       *) return;;
 esac
 
+# Where the login shell cannot be changed (a shared server without sudo), an interactive bash
+# hands over to zsh. DOTFILES_BASH=1 keeps bash, and zsh's children inherit it, so a `bash` typed
+# inside zsh stays bash.
+if [ -z "${DOTFILES_BASH:-}" ] && command -v zsh >/dev/null 2>&1; then
+    DOTFILES_BASH=1 exec zsh -l
+fi
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth

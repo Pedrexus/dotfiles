@@ -1,0 +1,27 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+# Keep pixi global's toolbox equal to .chezmoitemplates/pixi-global.toml. chezmoi runs this again
+# whenever the rendered manifest below changes, so an edit there is one `chezmoi apply` away.
+set -eu
+
+# One pixi home per architecture: an HPC home is shared by x86-64 and aarch64 nodes.
+PIXI_HOME="$HOME/.pixi/$(uname -m)"
+export PIXI_HOME
+PATH="$PIXI_HOME/bin:$HOME/.pixi/bin:$PATH"
+if ! command -v pixi >/dev/null 2>&1; then
+    curl -fsSL https://pixi.sh/install.sh | PIXI_NO_PATH_UPDATE=1 sh
+fi
+
+# The manifest is this repository's: refuse to overwrite environments it does not declare.
+manifest="$PIXI_HOME/manifests/pixi-global.toml"
+mkdir -p "$(dirname "$manifest")"
+if [ -f "$manifest" ] && grep -E '^\[envs\.' "$manifest" | grep -q -v -E '^\[envs\.dotfiles[].]'; then
+    echo "$manifest declares environments these dotfiles do not; move them into" \
+        ".chezmoitemplates/pixi-global.toml first" >&2
+    exit 1
+fi
+cat > "$manifest" <<'EOF'
+{{ template "pixi-global.toml" . }}
+EOF
+pixi global sync
+{{ end -}}

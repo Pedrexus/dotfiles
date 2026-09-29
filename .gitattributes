@@ -1,0 +1,2 @@
+# Every consumer of these files reads LF, zsh and tmux on Windows included (MSYS).
+* text=auto eol=lf

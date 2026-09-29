@@ -1,0 +1,10 @@
+{
+  "profiles": [
+    {
+      "name": "zsh",
+      "commandline": "%USERPROFILE%\\.pixi\\envs\\msys\\Library\\usr\\bin\\zsh.exe -i",
+      "startingDirectory": "%USERPROFILE%",
+      "hidden": false
+    }
+  ]
+}

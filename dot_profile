@@ -8,20 +8,22 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+# PATH first, so .bashrc below already finds the pixi toolbox (and zsh, where the system has one
+# only there). One pixi home per architecture, as ~/.zshenv explains.
+PIXI_HOME="$HOME/.pixi/$(uname -m)"
+export PIXI_HOME
+for dir in "$HOME/bin" "$HOME/.local/bin"; do
+    [ -d "$dir" ] && PATH="$dir:$PATH"
+done
+for dir in "$HOME/.pixi/bin" "$PIXI_HOME/bin"; do
+    [ -d "$dir" ] && PATH="$PATH:$dir"
+done
+unset dir
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
     if [ -f "$HOME/.bashrc" ]; then
 	. "$HOME/.bashrc"
     fi
-fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
 fi
