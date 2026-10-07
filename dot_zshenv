@@ -23,6 +23,16 @@ else
     export PIXI_HOME="$HOME/.pixi/$(uname -m)"
 fi
 
+# An ssh login into a Mac starts with no agent; share the desktop session's, which `AddKeysToAgent`
+# loads with keys whose passphrases the Keychain keeps (`UseKeychain`), so `ssh-add` and every ssh
+# behave over ssh as they do at the desk.
+if [[ $OSTYPE == darwin* && -z $SSH_AUTH_SOCK ]]; then
+    for listener in /var/run/com.apple.launchd.*/Listeners(N); do
+        export SSH_AUTH_SOCK=$listener
+        break
+    done
+fi
+
 # ------------------------------------------------------------------------------
 # REGION: PATH Setup
 # ------------------------------------------------------------------------------
