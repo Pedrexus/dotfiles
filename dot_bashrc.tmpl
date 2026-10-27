@@ -13,6 +13,9 @@ done
 unset dir
 export PATH
 
+# The bash that Claude Code runs (see ~/.zshenv), for agents started from a bash that stays bash.
+export CLAUDE_CODE_SHELL="{{ template "toolbox" . }}/bin/bash"
+
 # mainboard's workspace environment, where it manages this machine (see ~/.zshenv)
 [ -r "$HOME/.config/mainboard/path.sh" ] && . "$HOME/.config/mainboard/path.sh"
 
@@ -23,9 +26,10 @@ case $- in
 esac
 
 # Where the login shell cannot be changed (a shared server without sudo, a desktop that logs into
-# bash), an interactive bash hands over to zsh. DOTFILES_BASH=1 keeps bash, and zsh's children
-# inherit it, so a `bash` typed inside zsh stays bash.
-if [ -z "${DOTFILES_BASH:-}" ] && command -v zsh >/dev/null 2>&1; then
+# bash), an interactive bash on a terminal hands over to zsh; an agent running `bash -ic` is on
+# pipes and keeps its command. DOTFILES_BASH=1 keeps bash, and zsh's children inherit it, so a
+# `bash` typed inside zsh stays bash.
+if [ -z "${DOTFILES_BASH:-}" ] && [ -t 0 ] && [ -t 1 ] && command -v zsh >/dev/null 2>&1; then
     DOTFILES_BASH=1 exec zsh -l
 fi
 

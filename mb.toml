@@ -13,6 +13,7 @@ macos = "14.5"                      # conda-forge ghostscript 10.8 needs it
 glibc = "2.34"                      # RHEL 9, where the GH200 cluster runs, and every newer Linux
 
 [deps]
+bash            = ">=5.2.37"        # the shell agents run (CLAUDE_CODE_SHELL): conda-forge's newest, the same everywhere; macOS ships 3.2
 bat             = ">=0.26.1"
 bottom          = ">=0.14.7"        # btm, the system monitor
 chezmoi         = ">=2.73.0"

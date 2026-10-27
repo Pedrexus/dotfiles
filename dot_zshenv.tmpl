@@ -8,6 +8,21 @@ export EDITOR='lvim'
 # then reuse that dump, never scanning the toolbox's and the plugin's completions.
 skip_global_compinit=1
 
+# A terminal the toolbox's zsh has no definition for leaves its line editor repeating every key
+# typed. Its terminfo tree names directories in hex (78/xterm-256color) where Linux names them by
+# letter (x/xterm-ghostty), so it cannot read the system's definitions, and a Ghostty or kitty
+# terminal that ssh forwards is unknown to it; xterm-256color is the common ground.
+if [[ -o interactive ]]; then
+    zmodload zsh/terminfo
+    (( $#terminfo )) || export TERM=xterm-256color
+fi
+
+# Claude Code runs its commands in the login shell's zsh. Agents write bash, and zsh aborts a command
+# whose glob matches nothing and reads `$ref:path` as a history modifier, so it is pointed at the
+# toolbox's bash, the same version on every machine (macOS ships 3.2). The variable is undocumented,
+# read once at startup, and honors only bash or zsh. Codex takes the login shell and has no setting.
+export CLAUDE_CODE_SHELL="{{ template "toolbox" . }}/bin/bash"
+
 # pixi keeps one home per architecture, since an HPC home is shared by x86-64 login and aarch64
 # compute nodes.
 export PIXI_HOME="$HOME/.pixi/$(uname -m)"

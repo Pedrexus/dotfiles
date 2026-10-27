@@ -38,7 +38,11 @@ The toolbox sits on `PATH` after the system's directories, so a system tool alwa
 
 ## Shells
 
-zsh is the shell. Where the login shell cannot be changed, an interactive bash hands over to zsh, so a terminal or ssh session that starts bash still lands in zsh. `DOTFILES_BASH=1` keeps bash, and zsh's children inherit it, so a `bash` typed inside zsh stays bash. Every startup file sources mainboard's `~/.config/mainboard/path.sh`, so `mb` never appends a line of its own.
+zsh is the shell you type in. Where the login shell cannot be changed, an interactive bash on a terminal hands over to zsh, so a terminal or ssh session that starts bash still lands in zsh. `DOTFILES_BASH=1` keeps bash, and zsh's children inherit it, so a `bash` typed inside zsh stays bash. An agent running `bash -ic` is on pipes, not a terminal, and keeps its command. Every startup file sources mainboard's `~/.config/mainboard/path.sh`, so `mb` never appends a line of its own.
+
+Agents run bash, not zsh: they write bash, and zsh aborts a command whose glob matches nothing and reads `$ref:path` as a history modifier. Claude Code is pointed at the toolbox's bash (5.2.37, conda-forge's newest, the same on every machine; macOS ships 3.2) through `CLAUDE_CODE_SHELL`, an undocumented variable it reads once at startup. Codex has no shell setting and runs the login shell, which is bash on Fedora; opencode takes a `shell` key in its own config.
+
+The toolbox's ncurses names its terminfo directories in hex (`78/xterm-256color`) where Linux names them by letter, so it cannot read the system's definition of a terminal such as `xterm-ghostty`, and its line editor would repeat every key typed. zsh falls back to `xterm-256color` when it finds no definition.
 
 ## Day to day
 
