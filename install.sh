@@ -11,11 +11,13 @@ bin=$(mktemp -d)
 trap 'rm -rf "$bin"' EXIT
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$bin"
 
+# --force: a machine that already holds older dotfiles converges on a re-run, instead of stopping at
+# a prompt for a changed file that a pipe cannot answer.
 here=$(cd "$(dirname "$0")" && pwd)
 if [ -f "$here/.chezmoi.toml.tmpl" ]; then
-    "$bin/chezmoi" init --apply --source "$here"
+    "$bin/chezmoi" init --apply --force --source "$here"
 else
-    "$bin/chezmoi" init --apply Pedrexus/dotfiles
+    "$bin/chezmoi" init --apply --force Pedrexus/dotfiles
 fi
 
 echo "dotfiles applied: start zsh (an interactive bash hands over to it), then herdr"
