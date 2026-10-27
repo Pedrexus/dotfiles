@@ -42,15 +42,13 @@ autoload -Uz compinit
     fi
 }
 
-# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after
-# compinit, autosuggestions and syntax-highlighting go last
-for plugin in git sudo fzf-tab/fzf-tab zsh-autosuggestions/zsh-autosuggestions \
-    zsh-syntax-highlighting/zsh-syntax-highlighting; do
+# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after it
+for plugin in git sudo fzf-tab/fzf-tab; do
     [[ -r $plugins/$plugin.plugin.zsh ]] && source "$plugins/$plugin.plugin.zsh"
 done
 unset plugin plugins
 
-# Starship and zoxide come from the pixi global toolbox
+# Starship and zoxide come from the toolbox
 cached_init starship starship init zsh --print-full-init
 cached_init zoxide zoxide init zsh
 
