@@ -1,0 +1,63 @@
+# mb.toml: the toolbox every machine gets, the same tools on Linux and macOS. Floors only, at the
+# newest release: `mb upgrade` raises them, mb.lock pins the exact versions, and `mb install
+# --locked` installs that lock, so a host never solves for itself. chezmoi runs it whenever either
+# file changes (run_onchange_after_10-toolbox.sh.tmpl).
+
+[workspace]
+name      = "dotfiles"
+platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
+channels  = ["conda-forge"]
+
+[system]
+macos = "14.5"                      # conda-forge ghostscript 10.8 needs it
+glibc = "2.34"                      # RHEL 9, where the GH200 cluster runs, and every newer Linux
+
+[deps]
+bat             = ">=0.26.1"
+bottom          = ">=0.14.7"        # btm, the system monitor
+chezmoi         = ">=2.73.0"
+dust            = ">=1.2.6"
+eza             = ">=0.23.5"
+fd-find         = ">=10.5.0"
+ffmpeg          = ">=9.0.2"         # ripgrep-all's media adapter
+fzf             = ">=0.74.5"
+gh              = ">=2.103.2"
+ghostscript     = ">=10.8.0"        # snacks.image renders PDF pages through it
+git             = ">=2.56.0"
+git-lfs         = ">=3.8.1"
+herdr           = ">=0.9.5"         # the terminal multiplexer
+imagemagick     = ">=7.1.2"         # snacks.image converts every image through magick
+jaq             = ">=3.1.2"         # jq's language (conda-forge builds jq for Unix only)
+lazygit         = ">=0.66.2"
+nodejs          = ">=26.12.1"
+nvim            = ">=0.12.5"        # 0.12.6 needs libintl 1 on macOS, which git 2.56 is not yet built for; raise it once it is
+pandoc          = ">=3.12.1"
+parallel        = ">=20260922"
+poppler         = ">=26.9.0"
+pueue           = ">=4.0.4"         # mainboard's queue on a plain ssh host
+python          = ">=3.15.2"
+qpdf            = ">=12.4.2"
+ripgrep         = ">=15.2.0"
+ripgrep-all     = ">=0.10.10"       # rga, searching inside PDFs and documents
+rust            = ">=1.99.1"
+starship        = ">=1.27.0"
+tree-sitter-cli = ">=0.27.1"        # LazyVim's treesitter compiles its parsers with it
+xh              = ">=0.26.3"
+zoxide          = ">=0.10.0"
+
+# The python tools come from PyPI, where they are released. uv is not here: the toolbox script
+# installs it first, since it installs mainboard.
+[python.deps]
+ipython = ">=9.17.1"
+
+[on.linux-64.deps]
+zsh = ">=5.9.2"                     # a host without sudo or a system zsh; the system's wins on PATH
+
+[on.linux-aarch64.deps]
+zsh = ">=5.9.2"
+
+[on.linux-64.python.deps]
+nvitop = ">=1.7.2"                  # NVIDIA GPU monitor
+
+[on.linux-aarch64.python.deps]
+nvitop = ">=1.7.2"

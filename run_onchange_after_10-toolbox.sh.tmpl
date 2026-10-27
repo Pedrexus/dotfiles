@@ -1,0 +1,28 @@
+#!/bin/sh
+# Install the toolbox mb.toml declares, exactly as mb.lock solved it, on a machine that may have
+# neither uv nor mainboard yet. chezmoi runs this whenever either file changes, so a bump is one
+# `chezmoi update` away.
+# mb.toml {{ include "mb.toml" | sha256sum }}
+# mb.lock {{ include "mb.lock" | sha256sum }}
+set -eu
+
+# One pixi home per architecture (an HPC home is shared by x86-64 and aarch64 nodes), where mb puts
+# the pixi it pins when the machine has none, without editing a startup file.
+PIXI_HOME="$HOME/.pixi/$(uname -m)"
+PIXI_NO_PATH_UPDATE=1
+export PIXI_HOME PIXI_NO_PATH_UPDATE
+PATH="$HOME/.local/bin:$PATH"
+
+# uv and mainboard on a uv-managed Python, as `mb host setup` puts them on a host.
+if ! command -v uv >/dev/null 2>&1; then
+    curl -LsSf https://astral.sh/uv/install.sh | UV_NO_MODIFY_PATH=1 sh
+fi
+if ! command -v mb >/dev/null 2>&1; then
+    uv tool install --managed-python --python '>=3.14,<3.15' 'mainboard>=0.5.7'
+fi
+
+cd "{{ .chezmoi.sourceDir }}"
+mb install --locked
+
+toolbox="{{ template "toolbox" . }}"
+[ -d "$toolbox/bin" ] || { echo "mb installed no environment at $toolbox: fix .chezmoitemplates/toolbox" >&2; exit 1; }

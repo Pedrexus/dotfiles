@@ -1,74 +1,67 @@
 # Dotfiles
 
-My personal dotfiles, managed by [chezmoi](https://www.chezmoi.io/): the same zsh, herdr, Neovim
-and command-line toolbox on Linux, macOS and Windows, set up by one command and no sudo.
+zsh, herdr, Neovim and a command-line toolbox, identical on Linux and macOS, installed by one command without sudo. [chezmoi](https://www.chezmoi.io/) places the files, and [mainboard](https://pypi.org/project/mainboard/) owns the toolbox through [`mb.toml`](mb.toml).
 
-## Installation
-
-Linux or macOS:
-
-```bash
+```sh
 curl -fsSL https://raw.githubusercontent.com/Pedrexus/dotfiles/main/install.sh | sh
 ```
 
-Windows (PowerShell):
+From a checkout, `sh install.sh` uses that checkout as the chezmoi source. On a machine mainboard already manages, `mb host setup <host> --dotfiles` applies the same repository, and every later `mb host sync` keeps it.
 
-```powershell
-irm https://raw.githubusercontent.com/Pedrexus/dotfiles/main/install.ps1 | iex
+## How it fits together
+
+```mermaid
+flowchart LR
+    A["install.sh"] --> B["chezmoi<br/>files + zsh plugins"] --> C["toolbox script"] --> D["uv"] --> E["mainboard"] --> F["toolbox<br/>mb install --locked"]
 ```
 
-From a checkout, run `sh install.sh` or `powershell -ExecutionPolicy Bypass -File install.ps1`
-instead, and chezmoi uses that checkout as its source.
+chezmoi is one static binary that needs no git, so a throwaway copy goes first and the shell is configured within seconds. The toolbox script it runs is the only place that bootstraps uv and mainboard, whether the entry point is `install.sh`, `mb host setup` or `chezmoi update`, and the toolbox's own chezmoi takes over from there.
 
-The script installs [pixi](https://pixi.sh) when it is missing, then runs `chezmoi init --apply`
-through it. Applying writes the dotfiles, fetches the zsh plugins, and installs the
-toolbox with `pixi global`. Afterwards `chezmoi apply` keeps everything in step: an edit to the
-toolbox manifest is one apply away.
+`mb.lock` is solved once for linux-64, linux-aarch64 and osx-arm64, so a host installs exactly what was tested and never solves for itself. `mb.toml` holds only floors at the newest release; `mb upgrade` in this directory raises them and re-locks. The script reruns `mb install --locked` whenever either file changes.
 
-To carry encrypted files, move the age key first:
+conda-forge ships every command-line tool at its newest release, so `[deps]` holds them; the Python tools (ipython, nvitop) are `[python.deps]`, installed from PyPI where they are released. uv is not in the lock: the script installs it first, since it installs mainboard.
 
-```bash
-rsync -aP ~/key.age machine:~/.config/chezmoi/
+## What you get
+
+| | |
+|---|---|
+| shell | zsh with fzf-tab, autosuggestions, syntax highlighting and completions as plain files; starship prompt; zoxide |
+| multiplexer | herdr: it keeps its own ssh connection per saved machine (`herdr machine add gold`) and the sessions running when the client leaves; `ctrl+b q` detaches |
+| editor | [LazyVim](https://www.lazyvim.org) in `~/.config/lazyvim`, launched as `lvim` and set as `$EDITOR` |
+| search and files | ripgrep, ripgrep-all (`rga` through PDFs and documents), fd, fzf, bat, eza, dust, bottom |
+| development | git, git-lfs, gh, lazygit, python, ipython, node, rust, tree-sitter, jaq, xh, parallel |
+| documents and media | pandoc, poppler, qpdf, ghostscript, imagemagick, ffmpeg |
+| mainboard | pueue, the queue a plain ssh host dispatches through |
+| Linux only | zsh, for a host with neither sudo nor a system zsh, and nvitop |
+
+The toolbox sits on `PATH` after the system's directories, so a system tool always wins and the toolbox fills the gaps. pixi keeps one home per architecture (`~/.pixi/$(uname -m)`), so an HPC home shared by x86-64 and aarch64 nodes works.
+
+## Shells
+
+zsh is the shell. Where the login shell cannot be changed, an interactive bash hands over to zsh, so a terminal or ssh session that starts bash still lands in zsh. `DOTFILES_BASH=1` keeps bash, and zsh's children inherit it, so a `bash` typed inside zsh stays bash. Every startup file sources mainboard's `~/.config/mainboard/path.sh`, so `mb` never appends a line of its own.
+
+## Day to day
+
+| | |
+|---|---|
+| pull and apply | `chezmoi update` |
+| raise the toolbox | `mb upgrade` here, then commit `mb.toml` and `mb.lock` |
+| raise the editor | `:Lazy update` in `lvim`, then `chezmoi re-add ~/.config/lazyvim/lazy-lock.json` |
+| see drift | `chezmoi status` |
+
+## Fedora KDE
+
+Nothing but `curl` and `tar` is needed, and no sudo. Fedora leaves sshd off, so a machine meant to be reached by `mb host setup` needs `sudo systemctl enable --now sshd` once. Two system packages complete the editor:
+
+```sh
+sudo dnf install gcc            # nvim-treesitter compiles its parsers
+sudo dnf install wl-clipboard   # the Wayland clipboard; LazyVim syncs it except over ssh
 ```
 
-## What each system gets
+Add `tmux` only to use `mb shell --on <host> --keep`, which wraps an allocation in that host's own `/usr/bin/tmux`. To make zsh the login shell, `sudo dnf install zsh && chsh -s /usr/bin/zsh`; the bash handover works without it.
 
-| | Linux | macOS | Windows |
-|---|---|---|---|
-| shell | the system's zsh | the system's zsh | MSYS2's zsh, through pixi |
-| terminal multiplexer | herdr | herdr | herdr |
-| toolbox | pixi global | pixi global | pixi global |
-| prompt, plugins | starship, fzf-tab, autosuggestions, syntax highlighting | same | same |
+## Notes
 
-- **The toolbox** lives in [`.chezmoitemplates/pixi-global.toml`](.chezmoitemplates/pixi-global.toml):
-  git, gh, lazygit, nvim, ripgrep, fd, fzf, bat, eza, zoxide, starship, jaq, bottom, herdr, pwsh,
-  uv, python, node, rust, pandoc and the PDF and image tools. Every package there is built by conda-forge for
-  all four platforms, and a synced environment exposes exactly what its `exposed` table lists.
-- **zsh plugins** are plain files from [`.chezmoiexternal.toml`](.chezmoiexternal.toml),
-  refreshed weekly, so no plugin manager runs when a shell starts.
-- **Linux without sudo:** zsh must come from the system (`apt install zsh`). Where the login shell
-  cannot be changed, an interactive bash hands over to zsh (`DOTFILES_BASH=1` keeps bash). pixi
-  keeps one home per architecture (`~/.pixi/$(uname -m)`), so an HPC home shared by x86-64 and
-  aarch64 nodes works.
-- **One script:** the toolbox step is [Python](run_onchange_after_10-toolbox.py.tmpl) that pixi
-  runs, the same file on every system; only the two-line bootstraps above are shell.
-- **herdr** is the multiplexer everywhere, Windows included: it keeps its own ssh connection to
-  each saved machine (`herdr machine add gold`) and the sessions running when the client leaves.
-- **Windows:** conda-forge ships MSYS2's runtime and tools (`m2-*`) but not zsh, so
-  [`recipes/`](recipes) repackages MSYS2's own build and applying builds it into
-  `~/.cache/dotfiles/channel` (seconds, source pinned by sha256). zsh opens from the "zsh"
-  profile in Windows Terminal. Make it the default in Settings > Startup. MSYS's coreutils stay
-  inside zsh, so Windows' own `find` and `sort` keep working everywhere else. ssh stays Windows'
-  or Git's: MSYS2's OpenSSH cannot share connections on Windows either.
-
-## First usage
-
-Start `zsh`, then `herdr`; `ctrl+b q` detaches and `herdr` reattaches. herdr is the one
-multiplexer: tmux is not installed or configured here (a Linux host's own `/usr/bin/tmux` is what
-`mb shell --on <host> --keep` wraps an allocation in, untouched).
-
-## Troubleshooting
-
-### `compilation failed` happens due to GCC not loaded
-
-In HPC clusters, start running `module purge` and `module load {packages}` to add the necessary dependencies.
+- macOS 14.5 or later: conda-forge's ghostscript 10.8 requires it.
+- A Nerd Font in the terminal gives LazyVim its icons; over ssh that is the client's font.
+- On an HPC cluster, `compilation failed` means no compiler is loaded: `module purge`, then `module load` one.

@@ -1,0 +1,35 @@
+# ~/.bashrc: bash is the way into zsh here, and what ssh runs a command through.
+
+# PATH comes first, ahead of the interactive check: ssh runs a command through a non-interactive
+# bash that reads this file, and a Fedora bash login never reads ~/.profile. User binaries go in
+# front, the toolbox and pixi after the system's (see ~/.zshenv).
+export PIXI_HOME="$HOME/.pixi/$(uname -m)"
+for dir in "$HOME/bin" "$HOME/.local/bin"; do
+    case ":$PATH:" in *":$dir:"*) ;; *) PATH="$dir:$PATH" ;; esac
+done
+for dir in "{{ template "toolbox" . }}/bin" "$HOME/.pixi/bin" "$PIXI_HOME/bin"; do
+    case ":$PATH:" in *":$dir:"*) ;; *) PATH="$PATH:$dir" ;; esac
+done
+unset dir
+export PATH
+
+# mainboard's workspace environment, where it manages this machine (see ~/.zshenv)
+[ -r "$HOME/.config/mainboard/path.sh" ] && . "$HOME/.config/mainboard/path.sh"
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# Where the login shell cannot be changed (a shared server without sudo, a desktop that logs into
+# bash), an interactive bash hands over to zsh. DOTFILES_BASH=1 keeps bash, and zsh's children
+# inherit it, so a `bash` typed inside zsh stays bash.
+if [ -z "${DOTFILES_BASH:-}" ] && command -v zsh >/dev/null 2>&1; then
+    DOTFILES_BASH=1 exec zsh -l
+fi
+
+# Without zsh: the system's bash setup (Fedora reads /etc/bashrc from here), history, window size
+[ -f /etc/bashrc ] && . /etc/bashrc
+HISTCONTROL=ignoreboth
+shopt -s histappend checkwinsize

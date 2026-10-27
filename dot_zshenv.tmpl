@@ -1,0 +1,52 @@
+# ~/.zshenv: sourced on all invocations of the shell (login and non-login, interactive and not)
+
+# lvim is a real executable (~/.local/bin/lvim) so non-interactive callers like git and crontab
+# resolve it without shell aliases.
+export EDITOR='lvim'
+
+# Debian and Ubuntu's /etc/zsh/zshrc runs compinit before ~/.zshrc sets fpath, and ~/.zshrc would
+# then reuse that dump, never scanning the toolbox's and the plugin's completions.
+skip_global_compinit=1
+
+# pixi keeps one home per architecture, since an HPC home is shared by x86-64 login and aarch64
+# compute nodes.
+export PIXI_HOME="$HOME/.pixi/$(uname -m)"
+
+# An ssh login into a Mac starts with no agent; share the desktop session's, which `AddKeysToAgent`
+# loads with keys whose passphrases the Keychain keeps (`UseKeychain`), so `ssh-add` and every ssh
+# behave over ssh as they do at the desk.
+if [[ $OSTYPE == darwin* && -z $SSH_AUTH_SOCK ]]; then
+    for listener in /var/run/com.apple.launchd.*/Listeners(N); do
+        export SSH_AUTH_SOCK=$listener
+        break
+    done
+fi
+
+# mainboard writes its workspace environment's directories to ~/.config/mainboard/path.sh on the
+# machine it manages (`mb center verify`); these files own the startup, so they source it.
+[[ -r $HOME/.config/mainboard/path.sh ]] && source "$HOME/.config/mainboard/path.sh"
+
+# Keep user binaries first, preserve system paths, and move the toolbox (mb.toml's environment) and
+# pixi's bins after the system directories so login shells never resolve to a toolbox shell
+# binary. A function, since a login shell's /etc/zprofile (macOS path_helper, Fedora's
+# /etc/profile) reorders PATH after this file and ~/.zprofile runs it again.
+dotfiles_path() {
+    typeset -gU path PATH
+    local toolbox="{{ template "toolbox" . }}/bin"
+    local -a base
+    base=(${path:#$toolbox})
+    base=(${base:#$HOME/.pixi/bin})
+    base=(${base:#$PIXI_HOME/bin})
+    path=(
+        $HOME/.local/bin
+        $HOME/.cargo/bin
+        $HOME/.docker/bin
+        $HOME/bin
+        $base
+        $toolbox
+        $HOME/.pixi/bin
+        $PIXI_HOME/bin
+    )
+    export PATH
+}
+dotfiles_path

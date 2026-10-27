@@ -1,11 +1,6 @@
 return {
   "nvim-lualine/lualine.nvim",
   opts = {
-    options = {
-      -- theme = "tokyonight",
-      -- component_separators = "",
-      -- section_separators = "",
-    },
     tabline = {
       lualine_a = {},
       lualine_b = { "buffers" },

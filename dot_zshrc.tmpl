@@ -1,0 +1,94 @@
+# ~/.zshrc: sourced in interactive shells.
+
+setopt autocd              # Change directory without `cd`
+setopt NO_BEEP             # Disable system beeps
+setopt NOBGNICE            # Don't lower priority of background jobs
+
+# Source what `$@` prints, cached until the command's binary changes: starting a program only to
+# print the same script costs a process per shell.
+cached_init() {
+    local name=$1 binary=${commands[$2]}
+    [[ -n $binary ]] || return
+    local cache=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/$name.zsh
+    if [[ ! -s $cache || $binary -nt $cache ]]; then
+        mkdir -p ${cache:h}
+        "${@:2}" >| $cache
+    fi
+    source $cache
+}
+
+cached_init fzf fzf --zsh
+
+# Plugins are plain files chezmoi keeps current (.chezmoiexternal.toml): nothing is fetched or
+# compiled at shell start.
+plugins="$HOME/.local/share/zsh/plugins"
+
+# Extra completion definitions, the plugin's and the ones the toolbox's tools ship (rg, gh, eza,
+# chezmoi...), must be on fpath before compinit runs
+fpath=("$plugins/zsh-completions/src" "{{ template "toolbox" . }}/share/zsh/site-functions" $fpath)
+
+setopt COMPLETE_IN_WORD    # Allow tab completion in the middle of a word
+
+# Cached compinit, only rebuild (and audit) the dump when it is older than a day. The (#q)
+# qualifier needs extendedglob; without it the test was a plain string and always rebuilt.
+autoload -Uz compinit
+() {
+    setopt localoptions extendedglob
+    local dump=${ZDOTDIR:-$HOME}/.zcompdump
+    if [[ ! -s $dump || -n $dump(#qN.mh+24) ]]; then
+        compinit -d $dump
+    else
+        compinit -C -d $dump
+    fi
+}
+
+# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after
+# compinit, autosuggestions and syntax-highlighting go last
+for plugin in git sudo fzf-tab/fzf-tab zsh-autosuggestions/zsh-autosuggestions \
+    zsh-syntax-highlighting/zsh-syntax-highlighting; do
+    [[ -r $plugins/$plugin.plugin.zsh ]] && source "$plugins/$plugin.plugin.zsh"
+done
+unset plugin plugins
+
+# Starship and zoxide come from the pixi global toolbox
+cached_init starship starship init zsh --print-full-init
+cached_init zoxide zoxide init zsh
+
+HISTFILE=~/.zsh_history
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+setopt APPEND_HISTORY      # Append to history file, don't overwrite
+setopt HIST_IGNORE_DUPS    # Don't save duplicate consecutive commands
+setopt HIST_IGNORE_SPACE   # Don't save commands that start with a space
+setopt SHARE_HISTORY       # Share history between all active sessions, appending as typed
+
+# fzf-tab: disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+
+# Set descriptions format to enable group support
+zstyle ':completion:*:descriptions' format '[%d]'
+
+# Set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+zstyle ':completion:*' menu no
+
+# Custom fzf flags (NOTE: This might cause theme issues)
+zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
+
+# Switch group using `<` and `>`
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+zstyle ':fzf-tab:*' switch-group '<' '>'
+
+# CLI tools are owned by the pixi global env (see .chezmoitemplates/pixi-global.toml)
+alias l='eza --no-permissions --hyperlink -hagM'
+alias ll='l -l'
+alias lf='ll --total-size'
+alias vim="NVIM_APPNAME=lazyvim nvim"
+alias cat="bat"
+
+# jaq speaks jq's language; jq itself only where the system has it
+if (( ! $+commands[jq] && $+commands[jaq] )); then
+    alias jq=jaq
+fi
