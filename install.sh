@@ -14,8 +14,13 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$bin"
 # --force: a machine that already holds older dotfiles converges on a re-run, instead of stopping at
 # a prompt for a changed file that a pipe cannot answer.
 here=$(cd "$(dirname "$0")" && pwd)
+clone=$HOME/.local/share/chezmoi
 if [ -f "$here/.chezmoi.toml.tmpl" ]; then
     "$bin/chezmoi" init --apply --force --source "$here"
+elif [ -d "$clone/.git" ]; then
+    # chezmoi init leaves a clone it already has as it is, so it is brought level first
+    git -C "$clone" pull --ff-only
+    "$bin/chezmoi" init --apply --force --source "$clone"
 else
     "$bin/chezmoi" init --apply --force Pedrexus/dotfiles
 fi
