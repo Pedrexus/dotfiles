@@ -2,7 +2,7 @@
 version = 1
 
 [environments.default]
-solved_from = "051dfb7ac93e94b22245f00ebfcfb48d6849a048e0fd563825957b4983c93f69"
+solved_from = "2052f18338f14782e23c6fb47cb9a70697045e0c138fe480ec4773cebd726031"
 solved_by = "0.79.0"
 lock = '''
 version: 7

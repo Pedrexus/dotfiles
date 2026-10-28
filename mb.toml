@@ -51,14 +51,8 @@ zoxide          = ">=0.10.0"
 [python.deps]
 ipython = ">=9.17.1"
 
-[on.linux-64.deps]
+[on.linux.deps]
 zsh = ">=5.9.2"                     # a host without sudo or a system zsh; the system's wins on PATH
 
-[on.linux-aarch64.deps]
-zsh = ">=5.9.2"
-
-[on.linux-64.python.deps]
+[on.linux.python.deps]
 nvitop = ">=1.7.2"                  # NVIDIA GPU monitor
-
-[on.linux-aarch64.python.deps]
-nvitop = ">=1.7.2"

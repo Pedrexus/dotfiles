@@ -1,0 +1,16 @@
+# zsh plugins as plain files chezmoi refreshes weekly, so no plugin manager runs at shell start.
+{{ range list "Aloxaf/fzf-tab" "zsh-users/zsh-autosuggestions" "zsh-users/zsh-syntax-highlighting" "zsh-users/zsh-completions" }}
+[".local/share/zsh/plugins/{{ base . }}"]
+type = "archive"
+url = "https://github.com/{{ . }}/archive/refs/heads/master.tar.gz"
+exact = true
+stripComponents = 1
+refreshPeriod = "168h"
+{{ end }}
+# oh-my-zsh's git aliases and its double-Esc sudo, each a single self-contained file.
+{{ range list "git" "sudo" }}
+[".local/share/zsh/plugins/{{ . }}.plugin.zsh"]
+type = "file"
+url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/{{ . }}/{{ . }}.plugin.zsh"
+refreshPeriod = "168h"
+{{ end }}

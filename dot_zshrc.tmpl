@@ -19,7 +19,7 @@ cached_init() {
 
 cached_init fzf fzf --zsh
 
-# Plugins are plain files chezmoi keeps current (.chezmoiexternal.toml): nothing is fetched or
+# Plugins are plain files chezmoi keeps current (.chezmoiexternal.toml.tmpl): nothing is fetched or
 # compiled at shell start.
 plugins="$HOME/.local/share/zsh/plugins"
 
@@ -42,11 +42,12 @@ autoload -Uz compinit
     fi
 }
 
-# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after it
-for plugin in git sudo fzf-tab/fzf-tab; do
+# oh-my-zsh's git and sudo define completions, so they follow compinit; fzf-tab loads after it,
+# then autosuggestions (highlighting goes last, at the end of this file)
+for plugin in git sudo fzf-tab/fzf-tab zsh-autosuggestions/zsh-autosuggestions; do
     [[ -r $plugins/$plugin.plugin.zsh ]] && source "$plugins/$plugin.plugin.zsh"
 done
-unset plugin plugins
+unset plugin
 
 # Starship and zoxide come from the toolbox
 cached_init starship starship init zsh --print-full-init
@@ -90,3 +91,9 @@ alias cat="bat"
 if (( ! $+commands[jq] && $+commands[jaq] )); then
     alias jq=jaq
 fi
+
+# Syntax highlighting wraps the widgets bound so far, so nothing is sourced after it. It tracks
+# master, as upstream tags no release after 0.8.0 (2023) and master carries the fixes since.
+highlighting=$plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+[[ -r $highlighting ]] && source "$highlighting"
+unset plugins highlighting

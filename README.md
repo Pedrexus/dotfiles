@@ -25,7 +25,7 @@ conda-forge ships every command-line tool at its newest release, so `[deps]` hol
 
 | | |
 |---|---|
-| shell | zsh with fzf-tab and zsh-completions as plain files; starship prompt; zoxide |
+| shell | zsh with fzf-tab, autosuggestions, syntax highlighting and zsh-completions as plain files; starship prompt; zoxide |
 | multiplexer | herdr: it keeps its own ssh connection per saved machine (`herdr machine add gold`) and the sessions running when the client leaves; `ctrl+b q` detaches |
 | editor | [LazyVim](https://www.lazyvim.org) in `~/.config/lazyvim`, launched as `lvim` and set as `$EDITOR` |
 | search and files | ripgrep, ripgrep-all (`rga` through PDFs and documents), fd, fzf, bat, eza, dust, bottom |
